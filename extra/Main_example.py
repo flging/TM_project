@@ -12,26 +12,26 @@ raw_data = """
 """ #유저가 입력
 
 
-def Show_indexList(raw_data):
-    index_list=json.loads(get_index(raw_data))
-    return index_list
-
-def Create_Draft(raw_data, index_list, selected_numbers ,pdf_path):
+def make_draft(pdf_path, raw_data):
     draft = []
-    for number in selected_numbers:
-        disclosure_num = index_list[number]['disclosure_num']
+    index_list=json.loads(get_index(raw_data))
+    for index in index_list:
+        disclosure_num = index['disclosure_num']
         pages = find_gri_pages(pdf_path,disclosure_num)
         if type(pages) == list:
             extracted_pages = extract_text_from_pages(pdf_path, pages)
         else:
             extracted_pages = ["no page in previous report"]
+        
         for extrated_page in extracted_pages:
             small_draft = [pages, disclosure_num]
             small_draft.append(get_draft(extrated_page,disclosure_num,raw_data)) 
         draft.append(small_draft)
+        print(small_draft)
     return draft
 
+print(make_draft(pdf_path, raw_data))
 
-# print(Create_Draft(raw_data, Show_indexList(raw_data),[0,1,2],pdf_path))
+
 
 
