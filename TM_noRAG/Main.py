@@ -37,9 +37,10 @@ def make_draft(pdf_path, raw_data):
             small_draft = [pages, disclosure_num]
             small_draft.append(get_draft(extrated_page,disclosure_num,raw_data)) 
         draft.append(small_draft)
+        print(small_draft)
     return draft
 
-print(":::::::::::::::::::::::\n"+str(make_draft(pdf_path, raw_data)))
+print(make_draft(pdf_path, raw_data))
 
 
 

@@ -8,7 +8,7 @@ def find_gri_pages(pdf_path, gri_value):
             for page in pdf.pages:
                 pages_text += page.extract_text() + "\n"
         
-        pattern = rf"{gri_value}.*?(\d+(?:(?:~|, )\d+)*|\d+|해당사항 없음)"
+        pattern = rf"{gri_value}.*?((?:(?!1|2|3\b)\d+(?:(?:~|, )\d+)*)|해당사항 없음)"
         match = re.search(pattern, pages_text, re.DOTALL)
 
         if match:
