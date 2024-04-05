@@ -1,3 +1,12 @@
+import subprocess
+import sys
+
+# uvicorn 설치 여부 확인 및 설치
+try:
+    import uvicorn
+except ImportError:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "uvicorn"])
+
 from fastapi import FastAPI
 from TM_find_page import find_gri_pages
 from TM_agent_getindex import get_index
@@ -46,3 +55,6 @@ def get_gri_title(index_list: list):
         GRI_title = translate(gri)
         title_list.append(GRI_title)
     return title_list
+
+if __name__ == "__main__":
+    subprocess.run([sys.executable, "-m", "uvicorn", "your_script_name_here:app", "--host", "0.0.0.0", "--port", "8000"])
