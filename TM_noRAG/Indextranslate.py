@@ -1,7 +1,9 @@
 from openpyxl import load_workbook
 
-def translate(file_path, sheet_name, target_value):
+def translate(target_value):
     # 엑셀 파일 불러오기
+    sheet_name = 'GRI Index 번역'
+    file_path = 'TM_noRAG/GRI_index_translate.xlsx'
     workbook = load_workbook(file_path)
     # 시트 선택
     sheet = workbook[sheet_name]
@@ -18,10 +20,6 @@ def translate(file_path, sheet_name, target_value):
     return None
 
 # 사용 예시
-file_path = 'TM_noRAG/GRI_index_translate.xlsx'
-sheet_name = 'GRI Index 번역'
-target_value = 'GRI 201-1'
-
-right_cell_value = translate(file_path, sheet_name, target_value)
-
-print(right_cell_value)
+# target_value = 'GRI 201-1'
+# right_cell_value = translate(target_value)
+# print(right_cell_value)
