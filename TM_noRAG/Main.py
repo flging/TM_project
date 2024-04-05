@@ -24,7 +24,7 @@ pdf_path = "TM_noRAG/2023 Integrated Report_Kor.pdf"  # 전기보고서 첨부 �
 @app.post("/index_list")
 async def show_index_list(raw_data: str):
     index_list = json.loads(get_index(raw_data))
-    return JSONResponse(content=index_list)
+    return index_list
 
 @app.post("/create_draft")
 async def create_draft(raw_data: str, selected_numbers: list):
@@ -41,10 +41,10 @@ async def create_draft(raw_data: str, selected_numbers: list):
             small_draft = {"pages": pages, "disclosure_num": disclosure_num}
             small_draft["draft"] = get_draft(extracted_page, disclosure_num, raw_data)
             draft.append(small_draft)
-    return JSONResponse(content=draft)
+    return draft
 
 @app.post("/get_gri_title")
 async def get_gri_title(raw_data: str):
     index_list = json.loads(get_index(raw_data))
     title_list = [translate(index['disclosure_num']) for index in index_list]
-    return JSONResponse(content=title_list)
+    return title_list
