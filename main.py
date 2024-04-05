@@ -20,21 +20,6 @@ class Draft(BaseModel):
 class SelectedNumbers(BaseModel):
     selected_numbers: list[int]
 
-
-@app.post('/create_draft', response_model=Draft)
-def create_draft(raw_data: RawData, selected_numbers: SelectedNumbers):
-    index_list = show_index_list(raw_data.raw_data)
-    draft = create_draft_from_raw_data(raw_data.raw_data, index_list, selected_numbers.selected_numbers, pdf_path)
-    return {"draft": draft}
-
-
-@app.post('/get_gri_titles', response_model=list[str])
-def get_gri_titles(raw_data: RawData):
-    index_list = show_index_list(raw_data.raw_data)
-    title_list = get_gri_title(index_list)
-    return {"titles": title_list}
-
-
 def show_index_list(raw_data):
     index_list = json.loads(get_index(raw_data))
     return index_list
@@ -63,3 +48,20 @@ def get_gri_title(index_list):
         gri_title = translate(gri)
         title_list.append(gri_title)
     return title_list
+
+
+@app.post('/create_draft', response_model=Draft)
+def create_draft(raw_data: RawData, selected_numbers: SelectedNumbers):
+    index_list = show_index_list(raw_data.raw_data)
+    draft = create_draft_from_raw_data(raw_data.raw_data, index_list, selected_numbers.selected_numbers, pdf_path)
+    return {"draft": draft}
+
+
+@app.post('/get_gri_titles', response_model=list[str])
+def get_gri_titles(raw_data: RawData):
+    index_list = show_index_list(raw_data.raw_data)
+    title_list = get_gri_title(index_list)
+    return {"titles": title_list}
+
+
+
