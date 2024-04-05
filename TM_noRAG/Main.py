@@ -57,4 +57,4 @@ def get_gri_title(index_list: list):
     return title_list
 
 if __name__ == "__main__":
-    subprocess.run([sys.executable, "-m", "uvicorn", "your_script_name_here:app", "--host", "0.0.0.0", "--port", "8000"])
+    subprocess.run([sys.executable, "-m", "uvicorn", "Main:app", "--host", "0.0.0.0", "--port", "8000"])
