@@ -48,3 +48,7 @@ async def get_gri_title(raw_data: str):
     index_list = json.loads(get_index(raw_data))
     title_list = [translate(index['disclosure_num']) for index in index_list]
     return title_list
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
