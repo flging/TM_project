@@ -5,14 +5,21 @@ from TM_extract_text import extract_text_from_pages
 from TM_agent import get_draft
 from Indextranslate import translate
 import json
+import requests  # requests 라이브러리 추가
 
 app = FastAPI()
 
 pdf_path = "TM_noRAG/2023 Integrated Report_Kor.pdf"  # 전기보고서 첨부 경로
 
+# 외부 API 호출을 수행하는 함수
+def call_external_api():
+    response = requests.get("https://api.example.com/data", params={"key": "API_KEY"})
+    return response.json()
+
 @app.post("/index_list")
 def show_index_list(raw_data: str):
-    index_list = json.loads(get_index(raw_data))
+    # 외부 API 호출
+    index_list = call_external_api()
     return index_list
 
 @app.post("/create_draft")
