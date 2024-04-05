@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 from TM_find_page import find_gri_pages
 from TM_agent_getindex import get_index
 from TM_extract_text import extract_text_from_pages
@@ -6,20 +7,32 @@ from TM_agent import get_draft
 from Indextranslate import translate
 import json
 
-app = Flask(__name__)
+app = FastAPI()
 
 pdf_path = "TM_noRAG/2023 Integrated Report_Kor.pdf"  # 전기보고서 첨부 경로
 
+class RawData(BaseModel):
+    raw_data: str
 
-@app.route('/create_draft', methods=['POST'])
-def create_draft():
-    raw_data = request.json['raw_data']
-    selected_numbers = request.json['selected_numbers']
+class Draft(BaseModel):
+    draft: list
 
-    index_list = show_index_list(raw_data)
-    draft = create_draft_from_raw_data(raw_data, index_list, selected_numbers, pdf_path)
+class SelectedNumbers(BaseModel):
+    selected_numbers: list[int]
 
-    return jsonify({"draft": draft})
+
+@app.post('/create_draft', response_model=Draft)
+def create_draft(raw_data: RawData, selected_numbers: SelectedNumbers):
+    index_list = show_index_list(raw_data.raw_data)
+    draft = create_draft_from_raw_data(raw_data.raw_data, index_list, selected_numbers.selected_numbers, pdf_path)
+    return {"draft": draft}
+
+
+@app.post('/get_gri_titles', response_model=list[str])
+def get_gri_titles(raw_data: RawData):
+    index_list = show_index_list(raw_data.raw_data)
+    title_list = get_gri_title(index_list)
+    return {"titles": title_list}
 
 
 def show_index_list(raw_data):
@@ -43,14 +56,6 @@ def create_draft_from_raw_data(raw_data, index_list, selected_numbers, pdf_path)
     return draft
 
 
-@app.route('/get_gri_titles', methods=['POST'])
-def get_gri_titles():
-    raw_data = request.json['raw_data']
-    index_list = show_index_list(raw_data)
-    title_list = get_gri_title(index_list)
-    return jsonify({"titles": title_list})
-
-
 def get_gri_title(index_list):
     title_list = []
     for index in index_list:
@@ -58,7 +63,3 @@ def get_gri_title(index_list):
         gri_title = translate(gri)
         title_list.append(gri_title)
     return title_list
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
