@@ -16,7 +16,8 @@ def get_index(raw_data):
     """},
         {"role": "user", "content": f"raw_data:{raw_data}"}
     ],
-    temperature=0
+    temperature=0,
+    top_p=0
     )
     return response.choices[0].message.content
 
