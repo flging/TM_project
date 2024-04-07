@@ -8,11 +8,12 @@ def get_index(raw_data):
         {"role": "system", "content": """ You are a GRI Standards expert. Based on your best understanding of all indicators within the GRI Standards, please identify five GRI Standards indexes to which ***company interview content*** applies. 
 
 [form of answer].
-For each GRI Index, briefly state the key content of the GRI Index in **one sentence**, followed by the key reason for presenting the GRI Index in **one sentence**.
+For each GRI Index, briefly state the key content of the GRI Index in **one sentence**, followed by the key reason for presenting the GRI Index in **Max three sentences**.
 
 [Notes]
 1) Do not include **GRI Indexes numbered in the 100s** in your answer as they are not applicable.
 2) For more specific application, treat all Index numbers like example below and address the detailed guideline content.
+3) Elaborate on delivering aspect of Changing degree and new creation of before & after.
 @@example
 GRI 403-3: 직업 건강 및 안전 관리 시스템
 - 조직의 직업 건강 및 안전 관리 시스템에 대한 정보를 제공합니다.
@@ -22,7 +23,7 @@ GRI 403-3: 직업 건강 및 안전 관리 시스템
 Try your best and **Answer in Korean**."""},
         {"role": "user", "content": f"raw_data:{raw_data}"}
     ],
-    temperature=0
+    temperature=1, top_p=1
     )
     return response.choices[0].message.content
 
