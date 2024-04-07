@@ -18,6 +18,7 @@ app = FastAPI()
 
 # Temporary storage for uploaded files
 temp_pdf_storage = {}
+gri_title_list = []
 
 # def save_pdf(pdf: UploadFile = File(...)):
 #     # Ensure the directory exists
@@ -74,6 +75,8 @@ async def upload_pdf(file: UploadFile = File(...)):
 @app.post("/enter_raw_data/")
 async def enter_raw_data(raw_data: str = Form(...)):
     # Process the raw data here (e.g., save to database)
+    # global gri_title_list
+    # gri_title_list = get_GRI_Title(Show_indexList(raw_data))
     return {"message": "Raw data received successfully"}
 
 @app.post("/enter_raw_data_info/")
@@ -81,7 +84,7 @@ async def enter_raw_data_info(interviewee: str = Form(...), raw_data_name: str =
     # Process the raw data info here (e.g., save to database)
     return {"message": "Raw data info received successfully"}
 
-@app.post("/show_gri_titles/")
+@app.get("/show_gri_titles/")
 async def show_gri_titles(raw_data: List[str] = Form(...)):
     gri_titles = []
     for raw_data_item in raw_data:
