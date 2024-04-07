@@ -3,6 +3,7 @@ from typing import List
 import tempfile
 import os
 import json
+from fastapi.responses import JSONResponse
 
 # Import your existing functions here
 from TM_find_page import find_gri_pages
@@ -50,7 +51,7 @@ async def upload_pdf(pdf_file: UploadFile = File(...)):
         temp_pdf.write(pdf_file.file.read())
         temp_pdf_path = temp_pdf.name
     temp_pdf_storage[temp_pdf_path] = temp_pdf.name
-    return {"pdf_path": temp_pdf_path}
+    return JSONResponse(content={"message": "PDF uploaded successfully", "filename": temp_pdf.name})
 
 @app.post("/enter_raw_data/")
 async def enter_raw_data(raw_data: str = Form(...)):
