@@ -60,14 +60,14 @@ def get_GRI_Title(index_list):
     return Title_list
 
 @app.post("/upload_pdf/")
-async def upload_pdf(pdf: UploadFile = File(...)):
+async def upload_pdf(file: UploadFile = File(...)):
     upload_folder = "./temp/"
     if not os.path.exists(upload_folder):
         os.makedirs(upload_folder)
     
-    file_path = os.path.join(upload_folder, pdf.filename)
+    file_path = os.path.join(upload_folder, file.filename)
     with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(pdf.file, buffer)
+        shutil.copyfileobj(file.file, buffer)
 
     return {"message": "PDF uploaded successfully", "file_path": file_path}
 
