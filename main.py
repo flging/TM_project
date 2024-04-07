@@ -97,3 +97,10 @@ async def create_draft(selected_titles: List[str] = Form(...), edited_text: str 
     pdf_path = ""  # You need to provide the path to the PDF file
     draft = Create_Draft(edited_text, index_list, selected_numbers, pdf_path)  # Assuming Create_Draft function is available
     return {"draft": draft}
+
+@app.get("/display_draft/")
+async def display_draft():
+    # Fetch and return the draft
+    # For example: retrieve the draft from the database and return it
+    draft = "Example draft"
+    return JSONResponse(content={"draft": draft})
