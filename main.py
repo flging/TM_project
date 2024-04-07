@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, UploadFile, File, Form, Query
 from typing import List
 import tempfile
 import os
@@ -84,7 +84,7 @@ async def enter_raw_data_info(interviewee: str = Form(...), raw_data_name: str =
     return {"message": "Raw data info received successfully"}
 
 @app.get("/show_gri_titles/")
-async def show_gri_titles(gri_titles: list = Form(...)):
+async def show_gri_titles(gri_titles: list = Query(...)):
     gri_title1, gri_title2, gri_title3, gri_title4, gri_title5 = gri_titles[:5]
     return {
         "gri_title1": gri_title1,
