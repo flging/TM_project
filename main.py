@@ -27,7 +27,7 @@ async def input_raw_data_info(interviewee: str = Form(...), data_name: str = For
     return JSONResponse(content={"message": "Raw data info received successfully", "interviewee": interviewee, "data_name": data_name})
 
 # Endpoint to handle selected GRI titles
-@app.get("/select_gri_titles/")
+@app.post("/select_gri_titles/")
 async def select_gri_titles(selected_titles: List[str]):
     # Process the selected GRI titles here
     # For example: perform actions based on the selected titles, etc.
