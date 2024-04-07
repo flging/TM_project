@@ -53,7 +53,7 @@ async def upload_pdf(pdf_file: UploadFile = File(...)):
     return {"pdf_path": temp_pdf_path}
 
 @app.post("/enter_raw_data/")
-async def enter_raw_data(raw_data: UploadFile = File(...)):
+async def enter_raw_data(raw_data: str = Form(...)):
     return {"raw_data": raw_data}
 
 @app.post("/enter_raw_data_info/")
