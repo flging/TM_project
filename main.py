@@ -17,7 +17,9 @@ async def upload_pdf(pdf: UploadFile = File(...)):
 async def input_raw_data(raw_data: str = Form(...)):
     # Process the raw data here
     # For example: parse the raw data, extract information, etc.
-    return JSONResponse(content={"message": "Raw data received successfully", "raw_data": raw_data})
+    # Once processed, return the GRI titles list
+    gri_titles = ["GRI1", "GRI2", "GRI3", "GRI4", "GRI5"]
+    return JSONResponse(content={"message": "Raw data received successfully", "gri_titles": gri_titles})
 
 # Endpoint to handle raw data info input
 @app.post("/input_raw_data_info/")
