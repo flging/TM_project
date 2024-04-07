@@ -18,7 +18,7 @@ app = FastAPI()
 
 # Temporary storage for uploaded files
 temp_pdf_storage = {}
-gri_title_list = []
+gri_titles = {}
 
 # def save_pdf(pdf: UploadFile = File(...)):
 #     # Ensure the directory exists
@@ -72,12 +72,22 @@ async def upload_pdf(file: UploadFile = File(...)):
 
     return {"message": "PDF uploaded successfully", "file_path": file_path}
 
-@app.post("/enter_raw_data/")
 async def enter_raw_data(raw_data: str = Form(...)):
-    # Process the raw data here (e.g., save to database)
-    gri_titles = get_GRI_Title(Show_indexList(raw_data))
-    gri_title1, gri_title2, gri_title3, gri_title4, gri_title5 = gri_titles[:5]
-    return JSONResponse(content={"gri_title1": gri_title1, "gri_title2": gri_title2, "gri_title3": gri_title3, "gri_title4": gri_title4, "gri_title5": gri_title5})
+    # 원시 데이터 처리
+    gri_titles.update({"raw_data": raw_data})
+    
+    # Gri 타이틀 생성
+    gri_title_list = get_GRI_Title(Show_indexList(raw_data))
+    gri_titles.update({
+        "gri_title1": gri_title_list[0],
+        "gri_title2": gri_title_list[1],
+        "gri_title3": gri_title_list[2],
+        "gri_title4": gri_title_list[3],
+        "gri_title5": gri_title_list[4]
+    })
+    
+    # 클라이언트에게 Gri 타이틀 반환
+    return JSONResponse(content=gri_titles)
 
 @app.post("/enter_raw_data_info/")
 async def enter_raw_data_info(interviewee: str = Form(...), raw_data_name: str = Form(...)):
@@ -86,9 +96,9 @@ async def enter_raw_data_info(interviewee: str = Form(...), raw_data_name: str =
 
 
 @app.get("/show_gri_titles/")
-async def show_gri_titles(gri_title1: str = Query(...), gri_title2: str = Query(...), gri_title3: str = Query(...), gri_title4: str = Query(...), gri_title5: str = Query(...)):
-    return JSONResponse(content={"gri_title1": gri_title1, "gri_title2": gri_title2, "gri_title3": gri_title3, "gri_title4": gri_title4, "gri_title5": gri_title5})
-
+async def show_gri_titles():
+    global gri_titles
+    return JSONResponse(content=gri_titles)
 
 @app.post("/show_extracted_text/")
 async def show_extracted_text(pdf_path: str = Form(...)):
