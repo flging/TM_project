@@ -75,8 +75,6 @@ async def upload_pdf(file: UploadFile = File(...)):
 @app.post("/enter_raw_data/")
 async def enter_raw_data(raw_data: str = Form(...)):
     # Process the raw data here (e.g., save to database)
-    # global gri_title_list
-    # gri_title_list = get_GRI_Title(Show_indexList(raw_data))
     return {"message": "Raw data received successfully"}
 
 @app.post("/enter_raw_data_info/")
@@ -88,7 +86,13 @@ async def enter_raw_data_info(interviewee: str = Form(...), raw_data_name: str =
 async def show_gri_titles(raw_data: str = Form(...)):
     gri_titles = get_GRI_Title(Show_indexList(raw_data))
     gri_title1, gri_title2, gri_title3, gri_title4, gri_title5 = gri_titles[:5]
-    return {"message": "GRI titles received successfully"}
+    return {
+        "gri_title1": gri_title1,
+        "gri_title2": gri_title2,
+        "gri_title3": gri_title3,
+        "gri_title4": gri_title4,
+        "gri_title5": gri_title5
+    }
 
 @app.post("/show_extracted_text/")
 async def show_extracted_text(pdf_path: str = Form(...)):
