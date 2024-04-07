@@ -19,13 +19,13 @@ app = FastAPI()
 # Temporary storage for uploaded files
 temp_pdf_storage = {}
 
-def save_pdf(pdf: UploadFile):
-    # Generate a unique identifier for the uploaded PDF file
-    pdf_identifier = str(uuid.uuid4())
-    # Save the uploaded PDF file
-    with open(f"temp/{pdf_identifier}.pdf", "wb") as buffer:
+def save_pdf(pdf: UploadFile, save_directory: str):
+    # Ensure the directory exists
+    os.makedirs(save_directory, exist_ok=True)
+    
+    # Then save the file
+    with open(f"{save_directory}/{pdf.filename}", "wb") as buffer:
         shutil.copyfileobj(pdf.file, buffer)
-    return pdf_identifier
 
 
 def Show_indexList(raw_data):
