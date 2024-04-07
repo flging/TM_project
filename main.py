@@ -77,7 +77,7 @@ async def enter_raw_data(raw_data: str = Form(...)):
     # Process the raw data here (e.g., save to database)
     gri_titles = get_GRI_Title(Show_indexList(raw_data))
     gri_title1, gri_title2, gri_title3, gri_title4, gri_title5 = gri_titles[:5]
-    return {"message": "Raw data received successfully", "gri_title1": gri_title1, "gri_title2": gri_title2, "gri_title3": gri_title3, "gri_title4": gri_title4, "gri_title5": gri_title5}
+    return JSONResponse(content={"gri_title1": gri_title1, "gri_title2": gri_title2, "gri_title3": gri_title3, "gri_title4": gri_title4, "gri_title5": gri_title5})
 
 @app.post("/enter_raw_data_info/")
 async def enter_raw_data_info(interviewee: str = Form(...), raw_data_name: str = Form(...)):
