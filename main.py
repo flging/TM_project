@@ -5,6 +5,7 @@ import os
 import json
 import uuid
 from fastapi.responses import JSONResponse
+import shutil
 
 # Import your existing functions here
 from TM_find_page import find_gri_pages
@@ -17,6 +18,10 @@ app = FastAPI()
 
 # Temporary storage for uploaded files
 temp_pdf_storage = {}
+
+def save_pdf(pdf: UploadFile):
+    with open(f"temp/{pdf.filename}", "wb") as buffer:
+        shutil.copyfileobj(pdf.file, buffer)
 
 def Show_indexList(raw_data):
     index_list = json.loads(get_index(raw_data))
@@ -46,17 +51,10 @@ def get_GRI_Title(index_list):
     return Title_list
 
 @app.post("/upload_pdf/")
-async def upload_pdf(pdf_file: UploadFile = File(...)):
+async def upload_pdf(pdf: UploadFile = File(...)):
     # Generate a unique identifier for the uploaded PDF file
-    pdf_identifier = str(uuid.uuid4())
-    
-    # Save the uploaded PDF file
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_pdf:
-        temp_pdf.write(pdf_file.file.read())
-        temp_pdf_path = temp_pdf.name
-    temp_pdf_storage[pdf_identifier] = temp_pdf_path
-    
-    return JSONResponse(content={"message": "PDF uploaded successfully", "pdf_identifier": pdf_identifier})
+    save_pdf(pdf)
+    return JSONResponse(content={"message": "PDF uploaded successfully", "filename": pdf.filename})
 
 @app.post("/enter_raw_data/")
 async def enter_raw_data(raw_data: str = Form(...)):
