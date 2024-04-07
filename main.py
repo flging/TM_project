@@ -19,13 +19,17 @@ app = FastAPI()
 # Temporary storage for uploaded files
 temp_pdf_storage = {}
 
-def save_pdf(pdf: UploadFile, save_directory: str):
-    # Ensure the directory exists
-    os.makedirs(save_directory, exist_ok=True)
+# def save_pdf(pdf: UploadFile = File(...)):
+#     # Ensure the directory exists
+#     upload_folder = "./temp/"
+#     if not os.path.exists(upload_folder):
+#         os.makedirs(upload_folder)
     
-    # Then save the file
-    with open(os.path.join(save_directory, pdf.filename), "wb") as buffer:
-        shutil.copyfileobj(pdf.file, buffer)
+#     pdf.save(os.path.join(upload_folder, pdf.filename))
+
+#     # Then save the file
+#     with open(os.path.join(upload_folder, pdf.filename), "wb") as buffer:
+#         shutil.copyfileobj(pdf.file, buffer)
 
 
 def Show_indexList(raw_data):
@@ -57,9 +61,15 @@ def get_GRI_Title(index_list):
 
 @app.post("/upload_pdf/")
 async def upload_pdf(pdf: UploadFile = File(...)):
-    # Save the PDF file and get its identifier
-    pdf_identifier = save_pdf(pdf, "./temp/")
-    return JSONResponse(content={"message": "PDF uploaded successfully", "pdf_identifier": pdf_identifier})
+    upload_folder = "./temp/"
+    if not os.path.exists(upload_folder):
+        os.makedirs(upload_folder)
+    
+    file_path = os.path.join(upload_folder, pdf.filename)
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(pdf.file, buffer)
+
+    return {"message": "PDF uploaded successfully", "file_path": file_path}
 
 @app.post("/enter_raw_data/")
 async def enter_raw_data(raw_data: str = Form(...)):
