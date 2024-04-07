@@ -58,7 +58,7 @@ def get_GRI_Title(index_list):
 @app.post("/upload_pdf/")
 async def upload_pdf(pdf: UploadFile = File(...)):
     # Save the PDF file and get its identifier
-    pdf_identifier = save_pdf(pdf, ".temp/")
+    pdf_identifier = save_pdf(pdf, "./temp/")
     return JSONResponse(content={"message": "PDF uploaded successfully", "pdf_identifier": pdf_identifier})
 
 @app.post("/enter_raw_data/")
