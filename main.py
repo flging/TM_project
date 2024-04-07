@@ -85,12 +85,10 @@ async def enter_raw_data_info(interviewee: str = Form(...), raw_data_name: str =
     return {"message": "Raw data info received successfully"}
 
 @app.get("/show_gri_titles/")
-async def show_gri_titles(raw_data: List[str] = Form(...)):
-    gri_titles = []
-    for raw_data_item in raw_data:
-        index_list = Show_indexList(raw_data_item)
-        gri_titles.append(get_GRI_Title(index_list))
-    return {"gri_titles": gri_titles}
+async def show_gri_titles(raw_data: str = Form(...)):
+    gri_titles = get_GRI_Title(Show_indexList(raw_data))
+    gri_title1, gri_title2, gri_title3, gri_title4, gri_title5 = gri_titles[:5]
+    return {"message": "GRI titles received successfully"}
 
 @app.post("/show_extracted_text/")
 async def show_extracted_text(pdf_path: str = Form(...)):
