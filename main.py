@@ -66,6 +66,7 @@ async def upload_pdf(file: UploadFile = File(...)):
     if not os.path.exists(upload_folder):
         os.makedirs(upload_folder)
     
+    global file_path
     file_path = os.path.join(upload_folder, file.filename)
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
@@ -101,11 +102,11 @@ async def show_gri_titles():
     return JSONResponse(content=gri_titles)
 
 @app.post("/show_extracted_text/")
-async def show_extracted_text(pdf_path: str = Form(...)):
-    pdf_file_path = temp_pdf_storage.get(pdf_path, None)
-    if pdf_file_path:
+async def show_extracted_text():
+    global file_path
+    if file_path:
         # Extract text from PDF
-        extracted_text = extract_text_from_pages(pdf_file_path)  # You need to implement this function
+        extracted_text = extract_text_from_pages(file_path)  # You need to implement this function
         return {"extracted_text": extracted_text}
     else:
         return {"error": "PDF file not found"}
