@@ -1,79 +1,116 @@
-from fastapi import FastAPI, HTTPException, File, UploadFile
-from pydantic import BaseModel
-from TM_find_page import find_gri_pages
-from TM_agent_getindex import get_index
-from TM_extract_text import extract_text_from_pages
-from TM_agent import get_draft
-from Indextranslate import translate
-import json
+from fastapi import FastAPI, UploadFile, File, Form
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from typing import List
+import shutil
 import os
 
+# Initialize FastAPI app
 app = FastAPI()
 
-class RawData(BaseModel):
-    raw_data: str
+# Mount static files directory
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-class Draft(BaseModel):
-    draft: list
+# Initialize Jinja2 templates
+templates = Jinja2Templates(directory="templates")
 
-class SelectedNumbers(BaseModel):
-    selected_numbers: list[int]
+# Function to save uploaded PDF file
+def save_pdf(pdf: UploadFile):
+    with open(f"temp/{pdf.filename}", "wb") as buffer:
+        shutil.copyfileobj(pdf.file, buffer)
 
-pdf_directory = "uploaded_pdfs/"  # 업로드된 PDF 파일을 저장할 디렉토리 경로
-if not os.path.exists(pdf_directory):
-    os.makedirs(pdf_directory)
+# Function to read raw data from text file
+def read_raw_data(raw_data: UploadFile):
+    content = raw_data.file.read()
+    return content.decode("utf-8")
 
-def show_index_list(raw_data):
-    index_list = json.loads(get_index(raw_data))
-    return index_list
+# Function to extract basic information from raw data
+def process_raw_data(raw_data: str):
+    # Example: parse raw data and extract interviewee and data name
+    interviewee = "Example Interviewee"
+    data_name = "Example Data"
+    return interviewee, data_name
 
-def create_draft_from_raw_data(raw_data, index_list, selected_numbers, pdf_path):
-    draft = []
-    for number in selected_numbers:
-        disclosure_num = index_list[number]['disclosure_num']
-        pages = find_gri_pages(pdf_path, disclosure_num)
-        if type(pages) == list:
-            extracted_pages = extract_text_from_pages(pdf_path, pages)
-        else:
-            extracted_pages = ["no page in previous report"]
-        for extracted_page in extracted_pages:
-            small_draft = [pages, disclosure_num]
-            small_draft.append(get_draft(extracted_page, disclosure_num, raw_data))
-        draft.append(small_draft)
-    return draft
+# Function to extract GRI titles from index list
+def extract_gri_titles(index_list):
+    gri_titles = [index['disclosure_num'] for index in index_list]  # Assuming 'disclosure_num' is the key for GRI titles
+    return gri_titles[:5]  # Extract first 5 GRI titles
 
-def get_gri_title(index_list):
-    title_list = []
-    for index in index_list:
-        gri = index['disclosure_num']
-        gri_title = translate(gri)
-        title_list.append(gri_title)
-    return title_list
+# Function to render PDF upload page
+@app.get("/")
+def read_root():
+    return templates.TemplateResponse("upload_pdf.html", {"request": "request"})
 
-@app.post("/upload_file/")
-async def upload_file(file: UploadFile = File(...)):
-    contents = await file.read()  # 파일 내용 읽기
-    filename = file.filename  # 파일 이름 가져오기
+# Endpoint to handle PDF upload
+@app.post("/upload_pdf/")
+async def upload_pdf(pdf: UploadFile = File(...)):
+    save_pdf(pdf)
+    return {"filename": pdf.filename}
 
-    # 업로드된 파일을 디스크에 저장
-    with open(os.path.join(pdf_directory, filename), "wb") as f:
-        f.write(contents)
+# Endpoint to render raw data input page
+@app.get("/input_raw_data/")
+def read_raw_data_form():
+    return templates.TemplateResponse("input_raw_data.html", {"request": "request"})
 
-    return {"message": "File uploaded successfully"}
+# Endpoint to handle raw data input
+@app.post("/input_raw_data/")
+async def input_raw_data(raw_data: UploadFile = File(...)):
+    content = read_raw_data(raw_data)
+    return {"raw_data_content": content}
 
-@app.post('/get_gri_titles', response_model=list[str])
-def get_gri_titles(raw_data: RawData):
-    index_list = show_index_list(raw_data.raw_data)
-    uploaded_pdf_path = os.path.join(pdf_directory, os.listdir(pdf_directory)[0])
-    title_list = get_gri_title(index_list)
-    return {"titles": title_list}
+# Endpoint to render raw data info input page
+@app.get("/input_raw_data_info/")
+def read_raw_data_info_form():
+    return templates.TemplateResponse("input_raw_data_info.html", {"request": "request"})
 
-@app.post('/create_draft', response_model=Draft)
-def create_draft(raw_data: RawData, selected_numbers: SelectedNumbers):
-    index_list = show_index_list(raw_data.raw_data)
-    uploaded_pdf_path = os.path.join(pdf_directory, os.listdir(pdf_directory)[0])
-    draft = create_draft_from_raw_data(raw_data.raw_data, index_list, selected_numbers.selected_numbers, uploaded_pdf_path)
-    return {"draft": draft}
+# Endpoint to handle raw data info input
+@app.post("/input_raw_data_info/")
+async def input_raw_data_info(interviewee: str = Form(...), data_name: str = Form(...)):
+    return {"interviewee": interviewee, "data_name": data_name}
 
+# Endpoint to render GRI title selection page
+@app.get("/select_gri_titles/")
+def read_gri_titles(interviewee: str, data_name: str):
+    # Mock index list, replace with actual data
+    index_list = [{'disclosure_num': 'GRI1'}, {'disclosure_num': 'GRI2'}, {'disclosure_num': 'GRI3'}, {'disclosure_num': 'GRI4'}, {'disclosure_num': 'GRI5'}]
+    gri_titles = extract_gri_titles(index_list)
+    return templates.TemplateResponse("select_gri_titles.html", {"request": "request", "gri_titles": gri_titles})
 
+# Endpoint to handle selected GRI titles
+@app.post("/select_gri_titles/")
+async def select_gri_titles(selected_titles: List[str]):
+    return {"selected_titles": selected_titles}
 
+# Endpoint to render text editing page
+@app.get("/edit_text/")
+def read_text_edit():
+    # Mock text content, replace with actual data
+    text_content = "Example text content"
+    return templates.TemplateResponse("edit_text.html", {"request": "request", "text_content": text_content})
+
+# Endpoint to handle edited text
+@app.post("/edit_text/")
+async def edit_text(text_content: str = Form(...)):
+    return {"edited_text_content": text_content}
+
+# Endpoint to render draft creation page
+@app.get("/create_draft/")
+def read_create_draft(selected_titles: List[str], interviewee: str, data_name: str):
+    # Mock index list, replace with actual data
+    index_list = [{'disclosure_num': 'GRI1'}, {'disclosure_num': 'GRI2'}, {'disclosure_num': 'GRI3'}, {'disclosure_num': 'GRI4'}, {'disclosure_num': 'GRI5'}]
+    draft_data = []  # Replace with actual data
+    return templates.TemplateResponse("create_draft.html", {"request": "request", "selected_titles": selected_titles, "interviewee": interviewee, "data_name": data_name, "index_list": index_list, "draft_data": draft_data})
+
+# Endpoint to handle draft creation
+@app.post("/create_draft/")
+async def create_draft(selected_titles: List[str], interviewee: str, data_name: str, index_list: List[dict], draft_data: List[dict]):
+    # Generate draft using selected GRI titles, interviewee, data name, index list, and draft data
+    return {"draft_generated": True}
+
+# Endpoint to render draft display page
+@app.get("/display_draft/")
+def read_display_draft():
+    # Mock draft, replace with actual data
+    draft = "Example draft"
+    return templates.TemplateResponse("display_draft.html", {"request": "request", "draft": draft})
