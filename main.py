@@ -24,7 +24,7 @@ def save_pdf(pdf: UploadFile, save_directory: str):
     os.makedirs(save_directory, exist_ok=True)
     
     # Then save the file
-    with open(f"{save_directory}/{pdf.filename}", "wb") as buffer:
+    with open(os.path.join(save_directory, pdf.filename), "wb") as buffer:
         shutil.copyfileobj(pdf.file, buffer)
 
 
