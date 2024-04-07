@@ -61,6 +61,13 @@ async def upload_file(file: UploadFile = File(...)):
 
     return {"message": "File uploaded successfully"}
 
+@app.post('/get_gri_titles', response_model=list[str])
+def get_gri_titles(raw_data: RawData):
+    index_list = show_index_list(raw_data.raw_data)
+    uploaded_pdf_path = os.path.join(pdf_directory, os.listdir(pdf_directory)[0])
+    title_list = get_gri_title(index_list)
+    return {"titles": title_list}
+
 @app.post('/create_draft', response_model=Draft)
 def create_draft(raw_data: RawData, selected_numbers: SelectedNumbers):
     index_list = show_index_list(raw_data.raw_data)
@@ -68,10 +75,5 @@ def create_draft(raw_data: RawData, selected_numbers: SelectedNumbers):
     draft = create_draft_from_raw_data(raw_data.raw_data, index_list, selected_numbers.selected_numbers, uploaded_pdf_path)
     return {"draft": draft}
 
-@app.post('/get_gri_titles', response_model=list[str])
-def get_gri_titles(raw_data: RawData):
-    index_list = show_index_list(raw_data.raw_data)
-    uploaded_pdf_path = os.path.join(pdf_directory, os.listdir(pdf_directory)[0])
-    title_list = get_gri_title(index_list)
-    return {"titles": title_list}
+
 
