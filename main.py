@@ -20,8 +20,13 @@ app = FastAPI()
 temp_pdf_storage = {}
 
 def save_pdf(pdf: UploadFile):
-    with open(f"temp/{pdf.filename}", "wb") as buffer:
+    # Generate a unique identifier for the uploaded PDF file
+    pdf_identifier = str(uuid.uuid4())
+    # Save the uploaded PDF file
+    with open(f"temp/{pdf_identifier}.pdf", "wb") as buffer:
         shutil.copyfileobj(pdf.file, buffer)
+    return pdf_identifier
+
 
 def Show_indexList(raw_data):
     index_list = json.loads(get_index(raw_data))
@@ -52,9 +57,9 @@ def get_GRI_Title(index_list):
 
 @app.post("/upload_pdf/")
 async def upload_pdf(pdf: UploadFile = File(...)):
-    # Generate a unique identifier for the uploaded PDF file
-    save_pdf(pdf)
-    return JSONResponse(content={"message": "PDF uploaded successfully", "filename": pdf.filename})
+    # Save the PDF file and get its identifier
+    pdf_identifier = save_pdf(pdf)
+    return JSONResponse(content={"message": "PDF uploaded successfully", "pdf_identifier": pdf_identifier})
 
 @app.post("/enter_raw_data/")
 async def enter_raw_data(raw_data: str = Form(...)):
