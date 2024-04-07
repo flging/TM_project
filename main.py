@@ -1,68 +1,90 @@
 from fastapi import FastAPI, UploadFile, File, Form
-from fastapi.responses import JSONResponse
 from typing import List
-import shutil
+import tempfile
+import os
 
-# Initialize FastAPI app
+# Import your existing functions here
+from TM_find_page import find_gri_pages
+from TM_agent_getindex import get_index
+from TM_extract_text import extract_text_from_pages
+from TM_agent import get_draft
+from Indextranslate import translate
+import json
+
 app = FastAPI()
 
-# Function to save PDF file
-def save_pdf(pdf: UploadFile):
-    with open(f"temp/{pdf.filename}", "wb") as buffer:
-        shutil.copyfileobj(pdf.file, buffer)
+# Temporary storage for uploaded files
+temp_pdf_storage = {}
 
-# Function to read raw data from text file
-def read_raw_data(raw_data: UploadFile):
-    content = raw_data.file.read()
-    return content.decode("utf-8")
+def Show_indexList(raw_data):
+    index_list=json.loads(get_index(raw_data))
+    return index_list
 
-# Function to extract basic information from raw data
-def process_raw_data(raw_data: str):
-    # Example: parse raw data and extract interviewee and data name
-    interviewee = "Example Interviewee"
-    data_name = "Example Data"
-    return interviewee, data_name
+def Create_Draft(raw_data, index_list, selected_numbers ,pdf_path):
+    draft = []
+    for number in selected_numbers:
+        disclosure_num = index_list[number]['disclosure_num']
+        pages = find_gri_pages(pdf_path,disclosure_num)
+        if type(pages) == list:
+            extracted_pages = extract_text_from_pages(pdf_path, pages)
+        else:
+            extracted_pages = ["no page in previous report"]
+        for extrated_page in extracted_pages:
+            small_draft = [pages, disclosure_num]
+            small_draft.append(get_draft(extrated_page,disclosure_num,raw_data)) 
+        draft.append(small_draft)
+    return draft
 
-# Function to extract GRI titles from index list
-def extract_gri_titles(index_list):
-    gri_titles = [index['disclosure_num'] for index in index_list]  # Assuming 'disclosure_num' is the key for GRI titles
-    return gri_titles[:5]  # Extract first 5 GRI titles
+def get_GRI_Title(index_list):
+    Title_list = []
+    for index in index_list:
+        gri = index['disclosure_num']
+        GRI_title = translate(gri)
+        Title_list.append(GRI_title)
+    return Title_list
 
-# Endpoint to handle PDF upload
 @app.post("/upload_pdf/")
-async def upload_pdf(pdf: UploadFile = File(...)):
-    save_pdf(pdf)
-    return JSONResponse(content={"message": "PDF uploaded successfully", "filename": pdf.filename})
+async def upload_pdf(pdf_file: UploadFile = File(...)):
+    # Save the uploaded PDF file
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_pdf:
+        temp_pdf.write(pdf_file.file.read())
+        temp_pdf_path = temp_pdf.name
+    temp_pdf_storage[temp_pdf_path] = temp_pdf.name
+    return {"pdf_path": temp_pdf_path}
 
-# Endpoint to handle raw data input
-@app.post("/input_raw_data/")
-async def input_raw_data(raw_data: UploadFile = File(...)):
-    raw_data_content = read_raw_data(raw_data)
-    return JSONResponse(content={"message": "Raw data received successfully", "raw_data": raw_data_content})
+@app.post("/enter_raw_data/")
+async def enter_raw_data(raw_data: List[str] = Form(...)):
+    return {"raw_data": raw_data}
 
-# Endpoint to handle raw data info input
-@app.post("/input_raw_data_info/")
-async def input_raw_data_info(interviewee: str = Form(...), data_name: str = Form(...)):
-    return JSONResponse(content={"message": "Raw data info received successfully", "interviewee": interviewee, "data_name": data_name})
+@app.post("/enter_raw_data_info/")
+async def enter_raw_data_info(interviewee: str = Form(...), raw_data_name: str = Form(...)):
+    return {"interviewee": interviewee, "raw_data_name": raw_data_name}
 
-# Endpoint to handle selected GRI titles
-@app.post("/select_gri_titles/")
-async def select_gri_titles(selected_titles: List[str]):
-    return JSONResponse(content={"message": "Selected GRI titles received successfully", "selected_titles": selected_titles})
+@app.post("/show_gri_titles/")
+async def show_gri_titles(raw_data: List[str] = Form(...)):
+    index_list = Show_indexList(raw_data)  # Assuming Show_indexList function is available
+    gri_titles = get_GRI_Title(index_list)  # Assuming get_GRI_Title function is available
+    return {"gri_titles": gri_titles}
 
-# Endpoint to handle edited text
-@app.post("/edit_text/")
-async def edit_text(text_content: str = Form(...)):
-    return JSONResponse(content={"message": "Text content edited successfully", "text_content": text_content})
+@app.post("/show_extracted_text/")
+async def show_extracted_text(pdf_path: str = Form(...)):
+    pdf_file_path = temp_pdf_storage.get(pdf_path, None)
+    if pdf_file_path:
+        # Extract text from PDF
+        extracted_text = extract_text_from_pages(pdf_file_path)  # You need to implement this function
+        return {"extracted_text": extracted_text}
+    else:
+        return {"error": "PDF file not found"}
 
-# Endpoint to handle draft creation
+@app.post("/edit_extracted_text/")
+async def edit_extracted_text(text: str = Form(...)):
+    return {"edited_text": text}
+
 @app.post("/create_draft/")
-async def create_draft(selected_titles: List[str], interviewee: str = Form(...), data_name: str = Form(...)):
-    return JSONResponse(content={"message": "Draft created successfully", "selected_titles": selected_titles, "interviewee": interviewee, "data_name": data_name})
+async def create_draft(selected_titles: List[str] = Form(...), edited_text: str = Form(...), raw_data: List[str] = Form(...)):
+    index_list = Show_indexList(raw_data)  # Assuming Show_indexList function is available
+    selected_numbers = [index_list.index(title) for title in selected_titles]
+    draft = Create_Draft(raw_data, index_list, selected_numbers, edited_text)  # Assuming Create_Draft function is available
+    return {"draft": draft}
 
-# Endpoint to display draft
-@app.get("/display_draft/")
-async def display_draft():
-    draft = "Example draft"
-    return JSONResponse(content={"draft": draft})
-
+# Assuming you will have a similar function to show the final draft
