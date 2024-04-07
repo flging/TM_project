@@ -17,13 +17,18 @@ async def upload_pdf(pdf: UploadFile = File(...)):
 async def input_raw_data(raw_data: str = Form(...)):
     # Process the raw data here
     # For example: parse the raw data, extract information, etc.
-    # Once processed, return the GRI titles list
-    gri_titles = ["GRI1", "GRI2", "GRI3", "GRI4", "GRI5"]
-    return JSONResponse(content={"message": "Raw data received successfully", "gri_titles": gri_titles})
+    return JSONResponse(content={"message": "Raw data received successfully", "raw_data": raw_data})
+
+# Endpoint to handle raw data info input
+@app.post("/input_raw_data_info/")
+async def input_raw_data_info(interviewee: str = Form(...), data_name: str = Form(...)):
+    # Process the raw data info here
+    # For example: store the interviewee and data name in the database, etc.
+    return JSONResponse(content={"message": "Raw data info received successfully", "interviewee": interviewee, "data_name": data_name})
 
 # Endpoint to handle selected GRI titles
 @app.post("/select_gri_titles/")
-async def select_gri_titles(selected_titles: List[str] = Form(...)):
+async def select_gri_titles(selected_titles: List[str]):
     # Process the selected GRI titles here
     # For example: perform actions based on the selected titles, etc.
     return JSONResponse(content={"message": "Selected GRI titles received successfully", "selected_titles": selected_titles})
