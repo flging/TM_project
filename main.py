@@ -3,6 +3,7 @@ from typing import List
 import tempfile
 import os
 import json
+import uuid
 from fastapi.responses import JSONResponse
 
 # Import your existing functions here
@@ -46,12 +47,16 @@ def get_GRI_Title(index_list):
 
 @app.post("/upload_pdf/")
 async def upload_pdf(pdf_file: UploadFile = File(...)):
+    # Generate a unique identifier for the uploaded PDF file
+    pdf_identifier = str(uuid.uuid4())
+    
     # Save the uploaded PDF file
     with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_pdf:
         temp_pdf.write(pdf_file.file.read())
         temp_pdf_path = temp_pdf.name
-    temp_pdf_storage[temp_pdf_path] = temp_pdf.name
-    return JSONResponse(content={"message": "PDF uploaded successfully", "filename": temp_pdf.name})
+    temp_pdf_storage[pdf_identifier] = temp_pdf_path
+    
+    return JSONResponse(content={"message": "PDF uploaded successfully", "pdf_identifier": pdf_identifier})
 
 @app.post("/enter_raw_data/")
 async def enter_raw_data(raw_data: str = Form(...)):
