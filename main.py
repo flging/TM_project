@@ -101,7 +101,7 @@ async def show_gri_titles():
     global gri_titles
     return JSONResponse(content=gri_titles)
 
-@app.get("/show_extracted_text/")
+@app.post("/show_extracted_text/")
 async def show_extracted_text():
     global file_path
     if file_path:
