@@ -119,8 +119,8 @@ async def edit_extracted_text(text: str = Form(...)):
 async def create_draft(selected_titles: List[str] = Form(...), edited_text: str = Form(...)):
     index_list = Show_indexList(edited_text)  # Assuming Show_indexList function is available
     selected_numbers = [index_list.index(title) for title in selected_titles]
-    pdf_path = ""  # You need to provide the path to the PDF file
-    draft = Create_Draft(edited_text, index_list, selected_numbers, pdf_path)  # Assuming Create_Draft function is available
+    # pdf_path = ""  # You need to provide the path to the PDF file
+    draft = Create_Draft(edited_text, index_list, selected_numbers, file_path)  # Assuming Create_Draft function is available
     return {"draft": draft}
 
 @app.get("/display_draft/")
