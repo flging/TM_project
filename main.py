@@ -102,7 +102,7 @@ async def show_gri_titles():
     return JSONResponse(content=gri_titles)
 
 @app.post("/show_extracted_text/")
-async def show_extracted_text():
+async def show_extracted_text(extracted_text: str = Form(...)):
     global file_path
     if file_path:
         # Extract text from PDF
