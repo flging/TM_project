@@ -73,6 +73,7 @@ async def upload_pdf(file: UploadFile = File(...)):
 
     return {"message": "PDF uploaded successfully", "file_path": file_path}
 
+@app.post("/enter_raw_data/")
 async def enter_raw_data(raw_data: str = Form(...)):
     # 원시 데이터 처리
     gri_titles.update({"raw_data": raw_data})
