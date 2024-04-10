@@ -18,6 +18,8 @@ import time
 #             callback(result)
 #     threading.Thread(target=run).start()
 
+
+
 class GRIApp(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -26,7 +28,17 @@ class GRIApp(tk.Tk):
         self.pdf_path = None
         self.raw_data = None
         self.index_list = []
-        self.create_widgets()
+        self.key = None  # key 속성을 추가합니다.
+        self.create_widgets()        
+        self.request_key()  #
+
+    def request_key(self):
+        # 사용자로부터 키를 입력받는 메서드입니다.
+        self.key = simpledialog.askstring("Input", "Please enter the key:",
+                                          parent=self)
+        if not self.key:
+            messagebox.showwarning("Warning", "The key is required to proceed.")
+            self.request_key()  # 유효한 키를 받을 때까지 재요청합니다.
     
     def create_widgets(self):
         self.select_pdf_btn = tk.Button(self, text="Select PDF", command=self.select_pdf)
@@ -115,7 +127,7 @@ class GRIApp(tk.Tk):
         self.run_async(self.get_index_and_titles, callback=self.show_items)
     
     def get_index_and_titles(self):
-        self.index_list = Show_indexList(self.raw_data)
+        self.index_list = Show_indexList(self.raw_data, self.key)
         titles = get_GRI_Title(self.index_list)
         combined_list = [f"({self.index_list[i]['disclosure_num']}): [{title}] - {self.index_list[i]['description']}" for i, title in enumerate(titles)]
         return combined_list
@@ -178,14 +190,14 @@ class GRIApp(tk.Tk):
         self.after(100, self.prompt_for_raw_data)
 
     def create_draft(self, selected_indices):
-        return Create_Draft(self.raw_data, self.index_list, selected_indices, self.pdf_path)
+        return Create_Draft(self.raw_data, self.index_list, selected_indices, self.pdf_path, self.key)
         
 
-def Show_indexList(raw_data):
-    index_list = json.loads(get_index(raw_data))
+def Show_indexList(raw_data, key):
+    index_list = json.loads(get_index(raw_data, key))
     return index_list
 
-def Create_Draft(raw_data, index_list, selected_numbers, pdf_path):
+def Create_Draft(raw_data, index_list, selected_numbers, pdf_path, key):
     draft = []
     for number in selected_numbers:
         disclosure_num = index_list[number]['disclosure_num']
@@ -196,7 +208,7 @@ def Create_Draft(raw_data, index_list, selected_numbers, pdf_path):
             extracted_pages = ["no page in previous report"]
         for extracted_page in extracted_pages:
             small_draft = [pages, disclosure_num]
-            small_draft.append(get_draft(extracted_page, disclosure_num, raw_data))
+            small_draft.append(get_draft(extracted_page, disclosure_num, raw_data,key))
         draft.append(small_draft)
     return draft
 
