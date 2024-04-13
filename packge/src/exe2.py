@@ -9,6 +9,7 @@ from tkinter import filedialog, messagebox, simpledialog, Listbox, Toplevel
 import threading
 import json
 import time
+import sys
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect,
     QSize, QTime, QUrl, Qt)
@@ -20,10 +21,10 @@ from PySide6.QtWidgets import (QApplication, QLabel, QMainWindow, QMenuBar,
     QPushButton, QSizePolicy, QStatusBar, QWidget)
 # import logo1_rc
 
-class Ui_MainWindow(object):
+class GRIApp(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
-            MainWindow.setObjectName(u"MainWindow")
+            MainWindow.setObjectName(u"GRI Draft Generator")
         MainWindow.resize(1027, 693)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
@@ -65,12 +66,17 @@ class Ui_MainWindow(object):
     # setupUi
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"GRI Draft Generator", None))
         self.label.setText("")
         self.label_pic.setText("")
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"\uc804\uae30 \ubcf4\uace0\uc11c\ub97c \ucca8\ubd80\ud574\uc8fc\uc138\uc694", None))
         self.pushButton.setText(QCoreApplication.translate("MainWindow", u"PDF \ud30c\uc77c\uc744 \ucca8\ubd80\ud574\uc8fc\uc138\uc694", None))
     # retranslateUi
 
-app = Ui_MainWindow()
-app.mainloop()
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    MainWindow = QMainWindow()
+    ui = GRIApp()
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec())
