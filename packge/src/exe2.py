@@ -18,7 +18,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QLabel, QMainWindow, QMenuBar,
-    QPushButton, QSizePolicy, QStatusBar, QWidget, QInputDialog, QMessageBox, QFileDialog)
+    QPushButton, QSizePolicy, QStatusBar, QWidget, QInputDialog, QMessageBox, QFileDialog, QPlainTextEdit, QFrame)
 # import logo1_rc
 
 class GRIApp(object):
@@ -62,15 +62,14 @@ class GRIApp(object):
         self.statusbar.setObjectName(u"statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
-        self.retranslateUi(MainWindow)
-
-        QMetaObject.connectSlotsByName(MainWindow)
         self.pdf_path = None
         self.raw_data = None
         self.index_list = []
         self.key = None  # key 속성을 추가합니다.      
         self.request_key()  #
-    # setupUi
+        self.retranslateUi(MainWindow)
+
+        QMetaObject.connectSlotsByName(MainWindow)
 
     def request_key(self):
     # 사용자로부터 키를 입력받는 메서드입니다.
@@ -87,28 +86,86 @@ class GRIApp(object):
         self.label_pic.setText("")
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"\uc804\uae30 \ubcf4\uace0\uc11c\ub97c \ucca8\ubd80\ud574\uc8fc\uc138\uc694", None))
         self.pushButton.setText(QCoreApplication.translate("MainWindow", u"PDF \ud30c\uc77c\uc744 \ucca8\ubd80\ud574\uc8fc\uc138\uc694", None))
-    # retranslateUi
 
     def select_pdf(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         self.pdf_path, _ = QFileDialog.getOpenFileName(self.centralwidget, "Select PDF", "", "PDF files (*.pdf)", options=options)
         if self.pdf_path:
-            QMessageBox.information(self, "PDF Selected", f"Selected PDF: {self.pdf_path}")
-            # self.prompt_for_raw_data()  # 파일 선택 후 텍스트 입력창 호출
+            QMessageBox.information(self.centralwidget, "PDF Selected", f"Selected PDF: {self.pdf_path}")
+            self.prompt_for_raw_data()  # 파일 선택 후 텍스트 입력창 호출
+            
+    def prompt_for_raw_data(self):
+        MainWindow.close()
 
-#     def prompt_for_raw_data(self):
-#             self.input_window = Toplevel(self)
-#             self.input_window.title("Input Raw Data")
-#             self.input_window.geometry("1200x800")  # 입력 창의 크기를 조정합니다.
+        self.input_window = QWidget()
+        self.input_window.setWindowTitle("rawdata_input")
+        self.input_window.resize(1059, 664)
 
-#             tk.Label(self.input_window, text="Enter the raw data:").pack(pady=10)
+        # 배경색 설정
+        self.input_window.setStyleSheet("background-color: rgb(255, 217, 102);")
 
-#             self.raw_data_text = tk.Text(self.input_window, height=40, width=150)
-#             self.raw_data_text.pack(pady=10)
+        # 라벨 생성
+        self.label_2 = QLabel("GS 건설", self.input_window)
+        self.label_2.setGeometry(20, 10, 91, 31)
+        font = QFont()
+        font.setPointSize(15)
+        font.setBold(True)
+        self.label_2.setFont(font)
 
-#             submit_button = tk.Button(self.input_window, text="Submit", command=self.get_text_and_close)
-#             submit_button.pack(pady=10)
+        # 선 생성
+        self.line = QFrame(self.input_window)
+        self.line.setObjectName(u"line")
+        self.line.setGeometry(QRect(0, 56, 1059, 2))
+        self.line.setStyleSheet(u"background-color: rgb(0, 0, 0);")
+        self.line.setFrameShape(QFrame.Shape.HLine)
+        self.line.setFrameShadow(QFrame.Shadow.Sunken)
+
+        # 텍스트 입력 위젯 생성
+        self.plainTextEdit = QPlainTextEdit(self.input_window)
+        self.plainTextEdit.setObjectName(u"plainTextEdit")
+        self.plainTextEdit.setGeometry(QRect(100, 140, 841, 471))
+        self.plainTextEdit.setStyleSheet("background-color: white;")
+        self.plainTextEdit.setOverwriteMode(True)
+        self.plainTextEdit.setCenterOnScroll(True)
+        self.plainTextEdit.setPlaceholderText(u"내용을 입력해주세요")
+        font1 = QFont()
+        font1.setPointSize(9)  # 폰트 크기 설정
+        self.plainTextEdit.setFont(font1)  # 설정한 폰트 적용
+
+        # 라벨 생성
+        self.label_3 = QLabel("클라이언트 인터뷰, 고객사 성과자료 등 Raw Data를 입력해주세요!", self.input_window)
+        self.label_3.setGeometry(QRect(100, 90, 641, 41))
+        self.label_3.setFont(font)
+
+        # 확인 버튼 생성
+        ok_button = QPushButton("다음", self.input_window)
+        ok_button.setGeometry(500, 630, 75, 23)
+        ok_button.clicked.connect(self.process_raw_data)
+
+
+        self.input_window.show()
+
+    def process_raw_data(self):
+        raw_data = self.text_edit.toPlainText()
+        if raw_data:
+            QMessageBox.information(self.input_window, "Success", "Raw data entered successfully!")
+            # 여기서 raw_data 변수를 처리하는 코드를 추가하세요.
+        else:
+            QMessageBox.warning(self.input_window, "Warning", "Please enter raw data before proceeding.")
+    
+    # def prompt_for_raw_data(self):
+    #     self.input_window = QWidget(self)
+    #     self.input_window.title("Input Raw Data")
+    #     self.input_window.geometry("1200x800")  # 입력 창의 크기를 조정합니다.
+
+    #     tk.Label(self.input_window, text="Enter the raw data:").pack(pady=10)
+
+    #     self.raw_data_text = tk.Text(self.input_window, height=40, width=150)
+    #     self.raw_data_text.pack(pady=10)
+
+    #     submit_button = tk.Button(self.input_window, text="Submit", command=self.get_text_and_close)
+    #     submit_button.pack(pady=10)
 
 #     def get_text_and_close(self):
 #         self.raw_data = self.raw_data_text.get("1.0", tk.END).strip()  # 텍스트 영역에서 데이터를 가져옵니다.
