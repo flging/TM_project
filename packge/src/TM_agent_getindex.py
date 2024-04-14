@@ -1,5 +1,5 @@
 from openai import OpenAI
-
+import json
 
 def get_index(raw_data,key):
     client = OpenAI(api_key=key)
@@ -31,7 +31,7 @@ Try your best and **Answer in Korean**.
     temperature=0,
     top_p=0
     )
-    return response.choices[0].message.content
+    return json.loads(response.choices[0].message.content)
 
 # print(get_index("""직원 복지: 새로운 웰빙 프로그램을 도입하여 직원 만족도 점수가 20% 증가.
 # """))

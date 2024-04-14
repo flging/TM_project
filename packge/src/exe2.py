@@ -12,14 +12,29 @@ import time
 import sys
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
+    QSize, QTime, QUrl, Qt, Signal, QThread)
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QLabel, QMainWindow, QMenuBar,
-    QPushButton, QSizePolicy, QStatusBar, QWidget, QInputDialog, QMessageBox, QFileDialog, QPlainTextEdit, QFrame)
+    QPushButton, QSizePolicy, QStatusBar, QWidget, QInputDialog, QMessageBox, QFileDialog, QPlainTextEdit, QFrame, QProgressBar, QListWidgetItem, QScrollArea, QRadioButton)
 # import logo1_rc
+
+class WorkerThread(QThread):
+    finished = Signal(object)
+
+    def __init__(self, func, args=None, parent=None):
+        super().__init__(parent)
+        self.func = func
+        self.args = args if args is not None else ()
+
+    def run(self):
+        result = self.func(*self.args)
+        self.finished.emit(result)
+    
+    # def __del__(self):
+    #     self.wait()  # 쓰레드가 종료될 때까지 대기하도록 함
 
 class GRIApp(object):
     def setupUi(self, MainWindow):
@@ -69,7 +84,45 @@ class GRIApp(object):
         self.request_key()  #
         self.retranslateUi(MainWindow)
 
+
         QMetaObject.connectSlotsByName(MainWindow)
+
+    def show_loading(self):
+        self.loading_window = QMainWindow()
+        self.loading_window.setWindowTitle("Loading")
+        self.loading_window.setGeometry(0, 0, 200, 100)
+
+        self.loading_label = QLabel("Loading, please wait...", self.loading_window)
+        self.loading_label.setGeometry(0, 0, 200, 50)
+
+        self.progress_bar = QProgressBar(self.loading_window)
+        self.progress_bar.setGeometry(0, 50, 200, 50)
+        self.progress_bar.setRange(0, 0)  # Indeterminate progress
+
+        self.start_time = time.time()
+
+        self.loading_window.show()
+
+    def update_loading_label(self):
+        if self.loading_window.isVisible():
+            elapsed_time = int(time.time() - self.start_time)
+            self.loading_label.setText(f"Loading, please wait... {elapsed_time} seconds")
+
+    def hide_loading(self):
+        if self.loading_window is not None:
+            self.loading_window.close()
+    
+    # def run_async(self, func, *args, callback=None):
+    #     def run():
+    #         self.show_loading()
+    #         result = func(*args)
+    #         self.hide_loading()
+    #         if callback:
+    #             callback(result)
+            
+    #     thread = WorkerThread(func=run)
+    #     thread.finished.connect(callback)
+    #     thread.start()
 
     def request_key(self):
     # 사용자로부터 키를 입력받는 메서드입니다.
@@ -141,39 +194,187 @@ class GRIApp(object):
         # 확인 버튼 생성
         ok_button = QPushButton("다음", self.input_window)
         ok_button.setGeometry(500, 630, 75, 23)
+        ok_button.setStyleSheet(u"background-color: rgb(0, 0, 0); color: rgb(255, 255, 255);")
         ok_button.clicked.connect(self.process_raw_data)
 
 
         self.input_window.show()
-
-    def process_raw_data(self):
-        raw_data = self.text_edit.toPlainText()
-        if raw_data:
-            QMessageBox.information(self.input_window, "Success", "Raw data entered successfully!")
-            # 여기서 raw_data 변수를 처리하는 코드를 추가하세요.
-        else:
-            QMessageBox.warning(self.input_window, "Warning", "Please enter raw data before proceeding.")
     
-    # def prompt_for_raw_data(self):
-    #     self.input_window = QWidget(self)
-    #     self.input_window.title("Input Raw Data")
-    #     self.input_window.geometry("1200x800")  # 입력 창의 크기를 조정합니다.
+    def process_raw_data(self):
+    # 입력된 텍스트 가져오기
+        self.raw_data = self.plainTextEdit.toPlainText().strip()
+        if self.raw_data:
+            # 스레드 시작
+            self.show_loading()
+            self.thread = WorkerThread(func=self.get_index_and_titles)
+            self.thread.finished.connect(self.show_items)
+            self.thread.start()
+        else:
+            QMessageBox.warning(None, "Warning", "Please enter some text.")
 
-    #     tk.Label(self.input_window, text="Enter the raw data:").pack(pady=10)
+    def get_index_and_titles(self):
+        # 데이터 처리 작업
+        self.index_list = Show_indexList(self.raw_data, self.key)
+        titles = get_GRI_Title(self.index_list)
+        self.combined_list = [f"({self.index_list[i]['disclosure_num']}): [{title}] - {self.index_list[i]['description']}" for i, title in enumerate(titles)]
+    
+    # def get_text_and_close(self):
+    #     self.raw_data = self.plainTextEdit.toPlainText().strip()
+    #     if self.raw_data:
+    #         # 로딩 창 표시
+    #         self.show_loading()
+    #         # load_raw_data 메서드 호출
+    #         self.load_raw_data()
 
-    #     self.raw_data_text = tk.Text(self.input_window, height=40, width=150)
-    #     self.raw_data_text.pack(pady=10)
+    #         # 여기서 추가 작업 수행
+    #     else:
+    #         QMessageBox.warning(None, "Warning", "Please enter some text.")
+        
+    
+    # def load_raw_data(self):
+    #     self.run_async(self.get_index_and_titles, callback=self.show_items)
+    #     self.thread.start()
 
-    #     submit_button = tk.Button(self.input_window, text="Submit", command=self.get_text_and_close)
-    #     submit_button.pack(pady=10)
+    # def get_index_and_titles(self):
+    #     self.index_list = Show_indexList(self.raw_data, self.key)
+    #     titles = get_GRI_Title(self.index_list)
+    #     self.combined_list = [f"({self.index_list[i]['disclosure_num']}): [{title}] - {self.index_list[i]['description']}" for i, title in enumerate(titles)]
+    #     return self.combined_list
+    
+    def show_items(self):
+        # 이전에 추가된 위젯을 모두 제거합니다.
+        self.hide_loading()
+        # self.input_window.close()
+        
+        self.list_window = QWidget()
+        self.list_window.setWindowTitle("index_select")
+        self.list_window.resize(1059, 664)
 
-#     def get_text_and_close(self):
-#         self.raw_data = self.raw_data_text.get("1.0", tk.END).strip()  # 텍스트 영역에서 데이터를 가져옵니다.
-#         if self.raw_data:
-#             self.load_data_btn.config(state='normal')
-#         else:
-#             self.load_data_btn.config(state='disabled')
-#         self.input_window.destroy()  # 입력 창을 닫습니다.
+        # 배경색 설정
+        self.list_window.setStyleSheet("background-color: rgb(255, 217, 102);")
+
+        # 라벨 생성
+        self.label_4 = QLabel("GS 건설", self.list_window)
+        self.label_4.setGeometry(20, 10, 91, 31)
+        font = QFont()
+        font.setPointSize(15)
+        font.setBold(True)
+        self.label_2.setFont(font)
+
+        self.label_5 = QLabel(self.list_window)
+        self.label_5.setObjectName(u"label_5")
+        self.label_5.setGeometry(QRect(100, 140, 841, 441))
+        self.label_5.setStyleSheet(u"background-color: rgb(255, 255, 255);")
+
+        # 선 생성
+        self.line = QFrame(self.list_window)
+        self.line.setObjectName(u"line")
+        self.line.setGeometry(QRect(0, 56, 1059, 2))
+        self.line.setStyleSheet(u"background-color: rgb(0, 0, 0);")
+        self.line.setFrameShape(QFrame.Shape.HLine)
+        self.line.setFrameShadow(QFrame.Shadow.Sunken)
+
+
+        self.gri1 = QScrollArea(self.list_window)
+        self.gri1.setObjectName(u"gri1")
+        self.gri1.setGeometry(QRect(170, 170, 751, 61))
+        self.gri1.setStyleSheet(u"border-color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);")
+        self.gri1.setWidgetResizable(True)
+        self.scrollAreaWidgetContents1 = QWidget()
+        self.scrollAreaWidgetContents1.setObjectName(u"gri1_content")
+        self.scrollAreaWidgetContents1.setGeometry(QRect(0, 0, 749, 59))
+        self.gri1.setWidget(self.scrollAreaWidgetContents1)
+        text_label = QLabel(self.combined_list[0], self.scrollAreaWidgetContents1)
+        text_label.setGeometry(0, 0, 751, 61)
+
+        self.gri2 = QScrollArea(self.list_window)
+        self.gri2.setObjectName(u"gri2")
+        self.gri2.setGeometry(QRect(170, 250, 751, 61))
+        self.gri2.setStyleSheet(u"border-color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);")
+        self.gri2.setWidgetResizable(True)
+        self.scrollAreaWidgetContents2 = QWidget()
+        self.scrollAreaWidgetContents2.setObjectName(u"gri2_content")
+        self.scrollAreaWidgetContents2.setGeometry(QRect(0, 0, 749, 59))
+        self.gri2.setWidget(self.scrollAreaWidgetContents2)
+        text_label = QLabel(self.combined_list[0], self.scrollAreaWidgetContents2)
+        text_label.setGeometry(0, 0, 751, 61)
+
+        self.gri3 = QScrollArea(self.list_window)
+        self.gri3.setObjectName(u"gri3")
+        self.gri3.setGeometry(QRect(170, 330, 751, 61))
+        self.gri3.setStyleSheet(u"border-color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);")
+        self.gri3.setWidgetResizable(True)
+        self.scrollAreaWidgetContents3 = QWidget()
+        self.scrollAreaWidgetContents3.setObjectName(u"gri3_content")
+        self.scrollAreaWidgetContents3.setGeometry(QRect(0, 0, 749, 59))
+        self.gri3.setWidget(self.scrollAreaWidgetContents3)
+        text_label = QLabel(self.combined_list[0], self.scrollAreaWidgetContents3)
+        text_label.setGeometry(0, 0, 751, 61)
+
+        self.gri4 = QScrollArea(self.list_window)
+        self.gri4.setObjectName(u"gri4")
+        self.gri4.setGeometry(QRect(170, 410, 751, 61))
+        self.gri4.setStyleSheet(u"border-color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);")
+        self.gri4.setWidgetResizable(True)
+        self.scrollAreaWidgetContents4 = QWidget()
+        self.scrollAreaWidgetContents4.setObjectName(u"gri4_content")
+        self.scrollAreaWidgetContents4.setGeometry(QRect(0, 0, 749, 59))
+        self.gri4.setWidget(self.scrollAreaWidgetContents4)
+        text_label = QLabel(self.combined_list[0], self.scrollAreaWidgetContents4)
+        text_label.setGeometry(0, 0, 751, 61)
+
+        self.gri5 = QScrollArea(self.list_window)
+        self.gri5.setObjectName(u"gri5")
+        self.gri5.setGeometry(QRect(170, 490, 751, 61))
+        self.gri5.setStyleSheet(u"border-color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);")
+        self.gri5.setWidgetResizable(True)
+        self.scrollAreaWidgetContents5 = QWidget()
+        self.scrollAreaWidgetContents5.setObjectName(u"gri5_content")
+        self.scrollAreaWidgetContents5.setGeometry(QRect(0, 0, 749, 59))
+        self.gri5.setWidget(self.scrollAreaWidgetContents5)
+        text_label = QLabel(self.combined_list[0], self.scrollAreaWidgetContents5)
+        text_label.setGeometry(0, 0, 751, 61)
+
+        self.gricheck1 = QRadioButton(self.list_window)
+        self.gricheck1.setObjectName(u"gricheck1")
+        self.gricheck1.setStyleSheet(u"background-color: rgb(255, 255, 255);")
+        self.gricheck1.setGeometry(QRect(130, 190, 16, 20))
+        
+        self.gricheck2 = QRadioButton(self.list_window)
+        self.gricheck2.setObjectName(u"gricheck2")
+        self.gricheck2.setStyleSheet(u"background-color: rgb(255, 255, 255);")
+        self.gricheck2.setGeometry(QRect(130, 270, 16, 20))
+        
+        self.gricheck3 = QRadioButton(self.list_window)
+        self.gricheck3.setObjectName(u"gricheck3")
+        self.gricheck3.setStyleSheet(u"background-color: rgb(255, 255, 255);")
+        self.gricheck3.setGeometry(QRect(130, 350, 16, 20))
+
+        self.gricheck4 = QRadioButton(self.list_window)
+        self.gricheck4.setObjectName(u"gricheck4")
+        self.gricheck4.setStyleSheet(u"background-color: rgb(255, 255, 255);")
+        self.gricheck4.setGeometry(QRect(130, 430, 16, 20))
+
+        self.gricheck5 = QRadioButton(self.list_window)
+        self.gricheck5.setObjectName(u"gricheck5")
+        self.gricheck5.setStyleSheet(u"background-color: rgb(255, 255, 255);")
+        self.gricheck5.setGeometry(QRect(130, 510, 16, 20))
+
+
+        # 라벨 생성
+        self.label_6 = QLabel("맞춤 GRI Index를 3개 선택해주세요!", self.list_window)
+        self.label_6.setGeometry(QRect(100, 90, 641, 41))
+        self.label_6.setFont(font)
+
+        # 확인 버튼 생성
+        ok_button = QPushButton("다음", self.list_window)
+        ok_button.setGeometry(500, 630, 75, 23)
+        ok_button.setStyleSheet(u"background-color: rgb(0, 0, 0); color: rgb(255, 255, 255);")
+        # ok_button.clicked.connect(self.edit_text)
+
+
+        self.list_window.show()
+
 
 #     def load_raw_data(self):
 #         self.run_async(self.get_index_and_titles, callback=self.show_items)
@@ -244,32 +445,32 @@ class GRIApp(object):
 #     def create_draft(self, selected_indices):
 #         return Create_Draft(self.raw_data, self.index_list, selected_indices, self.pdf_path, self.key)
     
-# def Show_indexList(raw_data, key):
-#     index_list = json.loads(get_index(raw_data, key))
-#     return index_list
+def Show_indexList(raw_data, key):
+    index_list = get_index(raw_data, key)
+    return index_list
 
-# def Create_Draft(raw_data, index_list, selected_numbers, pdf_path, key):
-#     draft = []
-#     for number in selected_numbers:
-#         disclosure_num = index_list[number]['disclosure_num']
-#         pages = find_gri_pages(pdf_path, disclosure_num)
-#         if type(pages) == list:
-#             extracted_pages = extract_text_from_pages(pdf_path, pages)
-#         else:
-#             extracted_pages = ["no page in previous report"]
-#         for extracted_page in extracted_pages:
-#             small_draft = [pages, disclosure_num]
-#             small_draft.append(get_draft(extracted_page, disclosure_num, raw_data,key))
-#         draft.append(small_draft)
-#     return draft
+def Create_Draft(raw_data, index_list, selected_numbers, pdf_path, key):
+    draft = []
+    for number in selected_numbers:
+        disclosure_num = index_list[number]['disclosure_num']
+        pages = find_gri_pages(pdf_path, disclosure_num)
+        if type(pages) == list:
+            extracted_pages = extract_text_from_pages(pdf_path, pages)
+        else:
+            extracted_pages = ["no page in previous report"]
+        for extracted_page in extracted_pages:
+            small_draft = [pages, disclosure_num]
+            small_draft.append(get_draft(extracted_page, disclosure_num, raw_data,key))
+        draft.append(small_draft)
+    return draft
 
-# def get_GRI_Title(index_list):
-#     Title_list = []
-#     for index in index_list:
-#         gri = index['disclosure_num']
-#         GRI_title = translate(gri)
-#         Title_list.append(GRI_title)
-#     return Title_list
+def get_GRI_Title(index_list):
+    Title_list = []
+    for index in index_list:
+        gri = index['disclosure_num']
+        GRI_title = translate(gri)
+        Title_list.append(GRI_title)
+    return Title_list
 
 
 if __name__ == "__main__":
