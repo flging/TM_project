@@ -18,7 +18,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QLabel, QMainWindow, QMenuBar,
-    QPushButton, QSizePolicy, QStatusBar, QWidget, QInputDialog, QMessageBox, QFileDialog, QPlainTextEdit, QFrame, QProgressBar, QListWidgetItem, QScrollArea, QRadioButton)
+    QPushButton, QSizePolicy, QStatusBar, QWidget, QInputDialog, QMessageBox, QFileDialog, QPlainTextEdit, QFrame, QProgressBar, QListWidgetItem, QScrollArea, QRadioButton, QCheckBox, QLineEdit)
 # import logo1_rc
 
 class WorkerThread(QThread):
@@ -243,6 +243,7 @@ class GRIApp(object):
     
     def show_items(self):
         # 이전에 추가된 위젯을 모두 제거합니다.
+        self.input_window.close()
         self.hide_loading()
         # self.input_window.close()
         
@@ -259,7 +260,7 @@ class GRIApp(object):
         font = QFont()
         font.setPointSize(15)
         font.setBold(True)
-        self.label_2.setFont(font)
+        self.label_4.setFont(font)
 
         self.label_5 = QLabel(self.list_window)
         self.label_5.setObjectName(u"label_5")
@@ -286,6 +287,7 @@ class GRIApp(object):
         self.gri1.setWidget(self.scrollAreaWidgetContents1)
         text_label = QLabel(self.combined_list[0], self.scrollAreaWidgetContents1)
         text_label.setGeometry(0, 0, 751, 61)
+        text_label.setWordWrap(True)
 
         self.gri2 = QScrollArea(self.list_window)
         self.gri2.setObjectName(u"gri2")
@@ -296,8 +298,9 @@ class GRIApp(object):
         self.scrollAreaWidgetContents2.setObjectName(u"gri2_content")
         self.scrollAreaWidgetContents2.setGeometry(QRect(0, 0, 749, 59))
         self.gri2.setWidget(self.scrollAreaWidgetContents2)
-        text_label = QLabel(self.combined_list[0], self.scrollAreaWidgetContents2)
-        text_label.setGeometry(0, 0, 751, 61)
+        text_label2 = QLabel(self.combined_list[1], self.scrollAreaWidgetContents2)
+        text_label2.setGeometry(0, 0, 751, 61)
+        text_label2.setWordWrap(True)
 
         self.gri3 = QScrollArea(self.list_window)
         self.gri3.setObjectName(u"gri3")
@@ -308,8 +311,9 @@ class GRIApp(object):
         self.scrollAreaWidgetContents3.setObjectName(u"gri3_content")
         self.scrollAreaWidgetContents3.setGeometry(QRect(0, 0, 749, 59))
         self.gri3.setWidget(self.scrollAreaWidgetContents3)
-        text_label = QLabel(self.combined_list[0], self.scrollAreaWidgetContents3)
-        text_label.setGeometry(0, 0, 751, 61)
+        text_label3 = QLabel(self.combined_list[2], self.scrollAreaWidgetContents3)
+        text_label3.setGeometry(0, 0, 751, 61)
+        text_label3.setWordWrap(True)
 
         self.gri4 = QScrollArea(self.list_window)
         self.gri4.setObjectName(u"gri4")
@@ -320,8 +324,9 @@ class GRIApp(object):
         self.scrollAreaWidgetContents4.setObjectName(u"gri4_content")
         self.scrollAreaWidgetContents4.setGeometry(QRect(0, 0, 749, 59))
         self.gri4.setWidget(self.scrollAreaWidgetContents4)
-        text_label = QLabel(self.combined_list[0], self.scrollAreaWidgetContents4)
-        text_label.setGeometry(0, 0, 751, 61)
+        text_label4 = QLabel(self.combined_list[3], self.scrollAreaWidgetContents4)
+        text_label4.setGeometry(0, 0, 751, 61)
+        text_label4.setWordWrap(True)
 
         self.gri5 = QScrollArea(self.list_window)
         self.gri5.setObjectName(u"gri5")
@@ -332,30 +337,31 @@ class GRIApp(object):
         self.scrollAreaWidgetContents5.setObjectName(u"gri5_content")
         self.scrollAreaWidgetContents5.setGeometry(QRect(0, 0, 749, 59))
         self.gri5.setWidget(self.scrollAreaWidgetContents5)
-        text_label = QLabel(self.combined_list[0], self.scrollAreaWidgetContents5)
-        text_label.setGeometry(0, 0, 751, 61)
+        text_label5 = QLabel(self.combined_list[4], self.scrollAreaWidgetContents5)
+        text_label5.setGeometry(0, 0, 751, 61)
+        text_label5.setWordWrap(True)
 
-        self.gricheck1 = QRadioButton(self.list_window)
+        self.gricheck1 = QCheckBox(self.list_window)
         self.gricheck1.setObjectName(u"gricheck1")
         self.gricheck1.setStyleSheet(u"background-color: rgb(255, 255, 255);")
         self.gricheck1.setGeometry(QRect(130, 190, 16, 20))
         
-        self.gricheck2 = QRadioButton(self.list_window)
+        self.gricheck2 = QCheckBox(self.list_window)
         self.gricheck2.setObjectName(u"gricheck2")
         self.gricheck2.setStyleSheet(u"background-color: rgb(255, 255, 255);")
         self.gricheck2.setGeometry(QRect(130, 270, 16, 20))
         
-        self.gricheck3 = QRadioButton(self.list_window)
+        self.gricheck3 = QCheckBox(self.list_window)
         self.gricheck3.setObjectName(u"gricheck3")
         self.gricheck3.setStyleSheet(u"background-color: rgb(255, 255, 255);")
         self.gricheck3.setGeometry(QRect(130, 350, 16, 20))
 
-        self.gricheck4 = QRadioButton(self.list_window)
+        self.gricheck4 = QCheckBox(self.list_window)
         self.gricheck4.setObjectName(u"gricheck4")
         self.gricheck4.setStyleSheet(u"background-color: rgb(255, 255, 255);")
         self.gricheck4.setGeometry(QRect(130, 430, 16, 20))
 
-        self.gricheck5 = QRadioButton(self.list_window)
+        self.gricheck5 = QCheckBox(self.list_window)
         self.gricheck5.setObjectName(u"gricheck5")
         self.gricheck5.setStyleSheet(u"background-color: rgb(255, 255, 255);")
         self.gricheck5.setGeometry(QRect(130, 510, 16, 20))
@@ -370,10 +376,116 @@ class GRIApp(object):
         ok_button = QPushButton("다음", self.list_window)
         ok_button.setGeometry(500, 630, 75, 23)
         ok_button.setStyleSheet(u"background-color: rgb(0, 0, 0); color: rgb(255, 255, 255);")
-        # ok_button.clicked.connect(self.edit_text)
+        ok_button.clicked.connect(self.get_checked_items)
 
 
         self.list_window.show()
+    
+    def get_checked_items(self):
+        self.checked_items = []
+        if self.gricheck1.isChecked():
+            self.checked_items.append(0)
+        if self.gricheck2.isChecked():
+            self.checked_items.append(1)
+        if self.gricheck3.isChecked():
+            self.checked_items.append(2)
+        if self.gricheck4.isChecked():
+            self.checked_items.append(3)
+        if self.gricheck5.isChecked():
+            self.checked_items.append(4)
+        
+        if len(self.checked_items) == 3:
+            self.show_loading()
+            self.thread = WorkerThread(func=self.extract_text)
+            self.thread.finished.connect(self.edit_text)
+            self.thread.start()
+
+        else:
+            QMessageBox.critical(self.list_window, "Error", "정확하게 3개 골라주세요.")
+        
+        
+
+    
+    def extract_text(self):
+        self.extracted_text=[]
+        for number in self.checked_items:
+            disclosure_num = self.index_list[number]['disclosure_num']
+            pages = find_gri_pages(self.pdf_path, disclosure_num)
+            if type(pages) == list:
+                self.extracted_text += extract_text_from_pages(self.pdf_path, pages)
+            else:
+                self.extracted_text += ["no page in previous report"]
+        
+        print(self.extracted_text)
+        return self.extracted_text
+
+
+
+    def edit_text(self):
+        self.hide_loading()
+        self.list_window.close()
+        self.edit_window = QWidget()
+        self.edit_window.setWindowTitle("edit_text")
+        self.edit_window.resize(1059, 664)
+
+        # 배경색 설정
+        self.edit_window.setStyleSheet("background-color: rgb(255, 217, 102);")
+
+        # 라벨 생성
+        self.label_7 = QLabel("GS 건설", self.edit_window)
+        self.label_7.setGeometry(20, 10, 91, 31)
+        font = QFont()
+        font.setPointSize(15)
+        font.setBold(True)
+        self.label_7.setFont(font)
+
+        self.label_8 = QLabel(self.edit_window)
+        self.label_8.setObjectName(u"label_5")
+        self.label_8.setGeometry(QRect(100, 140, 841, 441))
+        self.label_8.setStyleSheet(u"background-color: rgb(255, 255, 255);")
+
+        # 선 생성
+        self.line = QFrame(self.edit_window)
+        self.line.setObjectName(u"line")
+        self.line.setGeometry(QRect(0, 56, 1059, 2))
+        self.line.setStyleSheet(u"background-color: rgb(0, 0, 0);")
+        self.line.setFrameShape(QFrame.Shape.HLine)
+        self.line.setFrameShadow(QFrame.Shadow.Sunken)
+
+        self.label_9 = QLabel("GRI Index에 해당하는 전기 보고서 내용을 검수해주세요!", self.edit_window)
+        self.label_9.setGeometry(QRect(100, 90, 641, 41))
+        self.label_9.setFont(font)
+        
+        self.text_edit = QPlainTextEdit(self.extracted_text[0], self.edit_window)
+        self.text_edit.setObjectName(u"text_edit")
+        self.text_edit.setGeometry(QRect(100, 140, 841, 471))
+        self.text_edit.setStyleSheet("background-color: white;")
+        # self.text_edit.setOverwriteMode(True)
+        # self.text_edit.setCenterOnScroll(True)
+        font1 = QFont()
+        font1.setPointSize(9)  # 폰트 크기 설정
+        self.text_edit.setFont(font1)  # 설정한 폰트 적용
+
+        submit_button = QPushButton("초안 요청", self.edit_window)
+        submit_button.setGeometry(500, 630, 75, 23)
+        submit_button.setStyleSheet(u"background-color: rgb(0, 0, 0); color: rgb(255, 255, 255);")
+        submit_button.clicked.connect(self.process_edit_text)
+
+        self.edit_window.show()
+    
+    def process_edit_text(self):
+    # 입력된 텍스트 가져오기
+        self.text_data = self.text_edit.toPlainText().strip()
+        if self.text_data:
+            # 스레드 시작
+            self.show_loading()
+            self.thread = WorkerThread(func=self.get_index_and_titles)
+            self.thread.finished.connect(self.show_items)
+            self.thread.start()
+        else:
+            QMessageBox.warning(None, "Warning", "Please enter some text.")
+
+
 
 
 #     def load_raw_data(self):

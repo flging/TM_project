@@ -150,9 +150,8 @@ class GRIApp(tk.Tk):
     def generate_draft(self):
         selected_indices = [self.listbox.curselection()[i] for i in range(len(self.listbox.curselection()))]
         if len(selected_indices) != 3:
-         messagebox.showerror("Error", "Please select exactly 3 items.")
-         return
-        self.run_async(self.create_draft, selected_indices, callback=self.show_draft_result)
+            messagebox.showerror("Error", "Please select exactly 3 items.")
+            return self.run_async(self.create_draft, selected_indices, callback=self.show_draft_result)
 
     def show_draft_result(self, result):
     # 결과 창 생성
