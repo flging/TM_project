@@ -17,7 +17,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QLabel, QMainWindow, QMenuBar,
+from PySide6.QtWidgets import (QApplication, QLabel, QMainWindow, QMenuBar, QTextEdit,
     QPushButton, QSizePolicy, QStatusBar, QWidget, QInputDialog, QMessageBox, QFileDialog, QPlainTextEdit, QFrame, QProgressBar, QListWidgetItem, QScrollArea, QRadioButton, QCheckBox, QLineEdit, QTabWidget)
 # import logo1_rc
 
@@ -49,9 +49,10 @@ class GRIApp(object):
         self.label.setStyleSheet(u"background-color:rgb(255, 217, 102)")
         self.label_pic = QLabel(self.centralwidget)
         self.label_pic.setObjectName(u"label_pic")
-        self.label_pic.setGeometry(QRect(400, 220, 241, 91))
-        pixmap = QPixmap("./logo1.png")
-        self.label_pic.setPixmap(pixmap)
+        self.label_pic.setGeometry(QRect(420, 220, 241, 91))
+        self.pixmap = QPixmap()
+        self.pixmap.load("packge/src/logo1.png")
+        self.label_pic.setPixmap(self.pixmap)
         self.label_2 = QLabel(self.centralwidget)
         self.label_2.setObjectName(u"label_2")
         self.label_2.setGeometry(QRect(350, 320, 351, 61))
@@ -160,11 +161,17 @@ class GRIApp(object):
 
         # 라벨 생성
         self.label_2 = QLabel("GS 건설", self.input_window)
-        self.label_2.setGeometry(20, 10, 91, 31)
+        self.label_2.setGeometry(130, 20, 91, 31)
         font = QFont()
         font.setPointSize(15)
         font.setBold(True)
         self.label_2.setFont(font)
+
+        self.label_pic_2 = QLabel(self.input_window)
+        self.label_pic_2.setObjectName(u"label_pic")
+        self.label_pic_2.setGeometry(QRect(10, 10, 111, 41))
+        self.label_pic_2.setPixmap(self.pixmap)
+        self.label_pic_2.setScaledContents(True)
 
         # 선 생성
         self.line = QFrame(self.input_window)
@@ -236,7 +243,7 @@ class GRIApp(object):
 
         # 라벨 생성
         self.label_4 = QLabel("GS 건설", self.list_window)
-        self.label_4.setGeometry(20, 10, 91, 31)
+        self.label_4.setGeometry(130, 20, 91, 31)
         font = QFont()
         font.setPointSize(15)
         font.setBold(True)
@@ -246,6 +253,11 @@ class GRIApp(object):
         self.label_5.setObjectName(u"label_5")
         self.label_5.setGeometry(QRect(100, 140, 841, 441))
         self.label_5.setStyleSheet(u"background-color: rgb(255, 255, 255);")
+
+        self.label_pic_2 = QLabel(self.list_window)
+        self.label_pic_2.setObjectName(u"label_pic")
+        self.label_pic_2.setGeometry(QRect(10, 10, 111, 41))
+        self.label_pic_2.setPixmap(self.pixmap)
 
         # 선 생성
         self.line = QFrame(self.list_window)
@@ -363,16 +375,22 @@ class GRIApp(object):
     
     def get_checked_items(self):
         self.checked_items = []
+        self.checked_disclosure_nums = []
         if self.gricheck1.isChecked():
             self.checked_items.append(0)
+            self.checked_disclosure_nums.append(self.disclosure_num_list[0])
         if self.gricheck2.isChecked():
             self.checked_items.append(1)
+            self.checked_disclosure_nums.append(self.disclosure_num_list[1])
         if self.gricheck3.isChecked():
             self.checked_items.append(2)
+            self.checked_disclosure_nums.append(self.disclosure_num_list[2])
         if self.gricheck4.isChecked():
             self.checked_items.append(3)
+            self.checked_disclosure_nums.append(self.disclosure_num_list[3])
         if self.gricheck5.isChecked():
             self.checked_items.append(4)
+            self.checked_disclosure_nums.append(self.disclosure_num_list[4])
         
         if len(self.checked_items) == 3:
             self.show_loading()
@@ -413,7 +431,7 @@ class GRIApp(object):
 
         # 라벨 생성
         self.label_7 = QLabel("GS 건설", self.edit_window)
-        self.label_7.setGeometry(20, 10, 91, 31)
+        self.label_7.setGeometry(130, 20, 91, 31)
         font = QFont()
         font.setPointSize(15)
         font.setBold(True)
@@ -423,6 +441,11 @@ class GRIApp(object):
         self.label_8.setObjectName(u"label_5")
         self.label_8.setGeometry(QRect(100, 140, 841, 441))
         self.label_8.setStyleSheet(u"background-color: rgb(255, 255, 255);")
+
+        self.label_pic_2 = QLabel(self.edit_window)
+        self.label_pic_2.setObjectName(u"label_pic")
+        self.label_pic_2.setGeometry(QRect(10, 10, 111, 41))
+        self.label_pic_2.setPixmap(self.pixmap)
 
         # 선 생성
         self.line = QFrame(self.edit_window)
@@ -447,35 +470,22 @@ class GRIApp(object):
         font1 = QFont()
         font1.setPointSize(9)  # 폰트 크기 설정
         self.tab_1.setFont(font1)
-        self.tabWidget.addTab(self.tab_1, self.disclosure_num_list[0])
+        self.tabWidget.addTab(self.tab_1, self.checked_disclosure_nums[0])
 
         self.tab_2 = QPlainTextEdit(self.extracted_text[1], self.edit_window)
         self.tab_2.setObjectName(u"tab_2")
         self.tab_2.setGeometry(QRect(100, 140, 841, 471))
         self.tab_2.setStyleSheet("background-color: white;")
         self.tab_2.setFont(font1)
-        self.tabWidget.addTab(self.tab_2, self.disclosure_num_list[1])
+        self.tabWidget.addTab(self.tab_2, self.checked_disclosure_nums[1])
 
         self.tab_3 = QPlainTextEdit(self.extracted_text[2], self.edit_window)
         self.tab_3.setObjectName(u"tab_3")
         self.tab_3.setGeometry(QRect(100, 140, 841, 471))
         self.tab_3.setStyleSheet("background-color: white;")
         self.tab_3.setFont(font1)
-        self.tabWidget.addTab(self.tab_3, self.disclosure_num_list[2])
+        self.tabWidget.addTab(self.tab_3, self.checked_disclosure_nums[2])
 
-        self.tab_4 = QPlainTextEdit(self.extracted_text[3], self.edit_window)
-        self.tab_4.setObjectName(u"tab_4")
-        self.tab_4.setGeometry(QRect(100, 140, 841, 471))
-        self.tab_4.setStyleSheet("background-color: white;")
-        self.tab_4.setFont(font1)
-        self.tabWidget.addTab(self.tab_4, self.disclosure_num_list[3])
-
-        self.tab_5 = QPlainTextEdit(self.extracted_text[4], self.edit_window)
-        self.tab_5.setObjectName(u"tab_5")
-        self.tab_5.setGeometry(QRect(100, 140, 841, 471))
-        self.tab_5.setStyleSheet("background-color: white;")
-        self.tab_5.setFont(font1)
-        self.tabWidget.addTab(self.tab_5, self.disclosure_num_list[4])
 
         submit_button = QPushButton("초안 요청", self.edit_window)
         submit_button.setGeometry(500, 630, 75, 23)
@@ -489,10 +499,8 @@ class GRIApp(object):
         self.text_data1 = self.tab_1.toPlainText().strip()
         self.text_data2 = self.tab_2.toPlainText().strip()
         self.text_data3 = self.tab_3.toPlainText().strip()
-        self.text_data4 = self.tab_4.toPlainText().strip()
-        self.text_data5 = self.tab_5.toPlainText().strip()
 
-        if self.text_data1 and self.text_data2 and self.text_data3 and self.text_data4 and self.text_data5:
+        if self.text_data1 and self.text_data2 and self.text_data3:
             # 스레드 시작
             self.show_loading()
             self.thread = WorkerThread(func=self.generate_draft)
@@ -502,11 +510,10 @@ class GRIApp(object):
             QMessageBox.warning(None, "Warning", "Please enter some text.")
     
     def generate_draft(self):
-        self.draft1 = get_draft(self.text_data1, self.disclosure_num_list[0], self.raw_data, self.key)
-        self.draft2 = get_draft(self.text_data2, self.disclosure_num_list[1], self.raw_data, self.key)
-        self.draft3 = get_draft(self.text_data3, self.disclosure_num_list[2], self.raw_data, self.key)
-        self.draft4 = get_draft(self.text_data4, self.disclosure_num_list[3], self.raw_data, self.key)
-        self.draft5 = get_draft(self.text_data5, self.disclosure_num_list[4], self.raw_data, self.key)
+        self.draft1 = get_draft(self.text_data1, self.checked_disclosure_nums[0], self.raw_data, self.key)
+        self.draft2 = get_draft(self.text_data2, self.checked_disclosure_nums[1], self.raw_data, self.key)
+        self.draft3 = get_draft(self.text_data3, self.checked_disclosure_nums[2], self.raw_data, self.key)
+
 
 
     def show_draft(self):
@@ -521,7 +528,7 @@ class GRIApp(object):
 
         # 라벨 생성
         self.label_10 = QLabel("GS 건설", self.result_window)
-        self.label_10.setGeometry(20, 10, 91, 31)
+        self.label_10.setGeometry(130, 20, 91, 31)
         font = QFont()
         font.setPointSize(15)
         font.setBold(True)
@@ -531,6 +538,11 @@ class GRIApp(object):
         self.label_11.setObjectName(u"label_11")
         self.label_11.setGeometry(QRect(100, 140, 841, 441))
         self.label_11.setStyleSheet(u"background-color: rgb(255, 255, 255);")
+
+        self.label_pic_2 = QLabel(self.result_window)
+        self.label_pic_2.setObjectName(u"label_pic")
+        self.label_pic_2.setGeometry(QRect(10, 10, 111, 41))
+        self.label_pic_2.setPixmap(self.pixmap)
 
         # 선 생성
         self.line = QFrame(self.result_window)
@@ -548,49 +560,49 @@ class GRIApp(object):
         self.tabWidget2.setObjectName(u"tabWidget")
         self.tabWidget2.setGeometry(QRect(100, 140, 841, 471))
         
-        self.tab_6 = QLabel(str(self.draft1), self.result_window)
+        self.tab_6 = QTextEdit(str(self.draft1), self.result_window)
         self.tab_6.setObjectName(u"tab_6")
         self.tab_6.setGeometry(QRect(100, 140, 841, 471))
         self.tab_6.setStyleSheet("background-color: white;")
         font1 = QFont()
         font1.setPointSize(9)  # 폰트 크기 설정
         self.tab_6.setFont(font1)
-        self.tabWidget2.addTab(self.tab_6, self.disclosure_num_list[0])
+        self.tab_6.setReadOnly(True)
+        self.tabWidget2.addTab(self.tab_6, self.checked_disclosure_nums[0])
 
-        self.tab_7 = QLabel(str(self.draft2), self.result_window)
+        self.tab_7 = QTextEdit(str(self.draft2), self.result_window)
         self.tab_7.setObjectName(u"tab_7")
         self.tab_7.setGeometry(QRect(100, 140, 841, 471))
         self.tab_7.setStyleSheet("background-color: white;")
         self.tab_7.setFont(font1)
-        self.tabWidget2.addTab(self.tab_7, self.disclosure_num_list[1])
+        self.tab_7.setReadOnly(True)
+        self.tabWidget2.addTab(self.tab_7, self.checked_disclosure_nums[1])
 
-        self.tab_8 = QLabel(str(self.draft3), self.result_window)
+        self.tab_8 = QTextEdit(str(self.draft3), self.result_window)
         self.tab_8.setObjectName(u"tab_8")
         self.tab_8.setGeometry(QRect(100, 140, 841, 471))
         self.tab_8.setStyleSheet("background-color: white;")
         self.tab_8.setFont(font1)
-        self.tabWidget2.addTab(self.tab_8, self.disclosure_num_list[2])
-
-        self.tab_9 = QLabel(str(self.draft4), self.result_window)
-        self.tab_9.setObjectName(u"tab_9")
-        self.tab_9.setGeometry(QRect(100, 140, 841, 471))
-        self.tab_9.setStyleSheet("background-color: white;")
-        self.tab_9.setFont(font1)
-        self.tabWidget2.addTab(self.tab_9, self.disclosure_num_list[3])
-
-        self.tab_10 = QLabel(str(self.draft5), self.result_window)
-        self.tab_10.setObjectName(u"tab_10")
-        self.tab_10.setGeometry(QRect(100, 140, 841, 471))
-        self.tab_10.setStyleSheet("background-color: white;")
-        self.tab_10.setFont(font1)
-        self.tabWidget2.addTab(self.tab_10, self.disclosure_num_list[4])
+        self.tab_8.setReadOnly(True)
+        self.tabWidget2.addTab(self.tab_8, self.checked_disclosure_nums[2])
 
         submit_button = QPushButton("다시하기", self.result_window)
         submit_button.setGeometry(500, 630, 75, 23)
         submit_button.setStyleSheet(u"background-color: rgb(0, 0, 0); color: rgb(255, 255, 255);")
-        # submit_button.clicked.connect(self.process_edit_text)
+        submit_button.clicked.connect(self.restart_application)
 
         self.result_window.show()
+    
+    def restart_application(self):
+        # 현재 애플리케이션을 다시 시작하는 코드
+        QApplication.exit()
+        QCoreApplication.instance().quit()
+        app = QApplication(sys.argv)
+        MainWindow = QMainWindow()
+        ui = GRIApp()
+        ui.setupUi(MainWindow)
+        MainWindow.show()
+        sys.exit(app.exec())
 
 def Show_indexList(raw_data, key):
     index_list = get_index(raw_data, key)
