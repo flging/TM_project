@@ -18,7 +18,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QLabel, QMainWindow, QMenuBar,
-    QPushButton, QSizePolicy, QStatusBar, QWidget, QInputDialog, QMessageBox, QFileDialog, QPlainTextEdit, QFrame, QProgressBar, QListWidgetItem, QScrollArea, QRadioButton, QCheckBox, QLineEdit)
+    QPushButton, QSizePolicy, QStatusBar, QWidget, QInputDialog, QMessageBox, QFileDialog, QPlainTextEdit, QFrame, QProgressBar, QListWidgetItem, QScrollArea, QRadioButton, QCheckBox, QLineEdit, QTabWidget)
 # import logo1_rc
 
 class WorkerThread(QThread):
@@ -217,29 +217,9 @@ class GRIApp(object):
         self.index_list = Show_indexList(self.raw_data, self.key)
         titles = get_GRI_Title(self.index_list)
         self.combined_list = [f"({self.index_list[i]['disclosure_num']}): [{title}] - {self.index_list[i]['description']}" for i, title in enumerate(titles)]
+        self.disclosure_num_list = [item["disclosure_num"] for item in self.index_list]
     
-    # def get_text_and_close(self):
-    #     self.raw_data = self.plainTextEdit.toPlainText().strip()
-    #     if self.raw_data:
-    #         # 로딩 창 표시
-    #         self.show_loading()
-    #         # load_raw_data 메서드 호출
-    #         self.load_raw_data()
 
-    #         # 여기서 추가 작업 수행
-    #     else:
-    #         QMessageBox.warning(None, "Warning", "Please enter some text.")
-        
-    
-    # def load_raw_data(self):
-    #     self.run_async(self.get_index_and_titles, callback=self.show_items)
-    #     self.thread.start()
-
-    # def get_index_and_titles(self):
-    #     self.index_list = Show_indexList(self.raw_data, self.key)
-    #     titles = get_GRI_Title(self.index_list)
-    #     self.combined_list = [f"({self.index_list[i]['disclosure_num']}): [{title}] - {self.index_list[i]['description']}" for i, title in enumerate(titles)]
-    #     return self.combined_list
     
     def show_items(self):
         # 이전에 추가된 위젯을 모두 제거합니다.
@@ -416,7 +396,7 @@ class GRIApp(object):
             else:
                 self.extracted_text += ["no page in previous report"]
         
-        print(self.extracted_text)
+        # print(self.extracted_text)
         return self.extracted_text
 
 
@@ -456,15 +436,46 @@ class GRIApp(object):
         self.label_9.setGeometry(QRect(100, 90, 641, 41))
         self.label_9.setFont(font)
         
-        self.text_edit = QPlainTextEdit(self.extracted_text[0], self.edit_window)
-        self.text_edit.setObjectName(u"text_edit")
-        self.text_edit.setGeometry(QRect(100, 140, 841, 471))
-        self.text_edit.setStyleSheet("background-color: white;")
-        # self.text_edit.setOverwriteMode(True)
-        # self.text_edit.setCenterOnScroll(True)
+        self.tabWidget = QTabWidget(self.edit_window)
+        self.tabWidget.setObjectName(u"tabWidget")
+        self.tabWidget.setGeometry(QRect(100, 140, 841, 471))
+        
+        self.tab_1 = QPlainTextEdit(self.extracted_text[0], self.edit_window)
+        self.tab_1.setObjectName(u"tab_1")
+        self.tab_1.setGeometry(QRect(100, 140, 841, 471))
+        self.tab_1.setStyleSheet("background-color: white;")
         font1 = QFont()
         font1.setPointSize(9)  # 폰트 크기 설정
-        self.text_edit.setFont(font1)  # 설정한 폰트 적용
+        self.tab_1.setFont(font1)
+        self.tabWidget.addTab(self.tab_1, self.disclosure_num_list[0])
+
+        self.tab_2 = QPlainTextEdit(self.extracted_text[1], self.edit_window)
+        self.tab_2.setObjectName(u"tab_2")
+        self.tab_2.setGeometry(QRect(100, 140, 841, 471))
+        self.tab_2.setStyleSheet("background-color: white;")
+        self.tab_2.setFont(font1)
+        self.tabWidget.addTab(self.tab_2, self.disclosure_num_list[1])
+
+        self.tab_3 = QPlainTextEdit(self.extracted_text[2], self.edit_window)
+        self.tab_3.setObjectName(u"tab_3")
+        self.tab_3.setGeometry(QRect(100, 140, 841, 471))
+        self.tab_3.setStyleSheet("background-color: white;")
+        self.tab_3.setFont(font1)
+        self.tabWidget.addTab(self.tab_3, self.disclosure_num_list[2])
+
+        self.tab_4 = QPlainTextEdit(self.extracted_text[3], self.edit_window)
+        self.tab_4.setObjectName(u"tab_4")
+        self.tab_4.setGeometry(QRect(100, 140, 841, 471))
+        self.tab_4.setStyleSheet("background-color: white;")
+        self.tab_4.setFont(font1)
+        self.tabWidget.addTab(self.tab_4, self.disclosure_num_list[3])
+
+        self.tab_5 = QPlainTextEdit(self.extracted_text[4], self.edit_window)
+        self.tab_5.setObjectName(u"tab_5")
+        self.tab_5.setGeometry(QRect(100, 140, 841, 471))
+        self.tab_5.setStyleSheet("background-color: white;")
+        self.tab_5.setFont(font1)
+        self.tabWidget.addTab(self.tab_5, self.disclosure_num_list[4])
 
         submit_button = QPushButton("초안 요청", self.edit_window)
         submit_button.setGeometry(500, 630, 75, 23)
@@ -475,88 +486,112 @@ class GRIApp(object):
     
     def process_edit_text(self):
     # 입력된 텍스트 가져오기
-        self.text_data = self.text_edit.toPlainText().strip()
-        if self.text_data:
+        self.text_data1 = self.tab_1.toPlainText().strip()
+        self.text_data2 = self.tab_2.toPlainText().strip()
+        self.text_data3 = self.tab_3.toPlainText().strip()
+        self.text_data4 = self.tab_4.toPlainText().strip()
+        self.text_data5 = self.tab_5.toPlainText().strip()
+
+        if self.text_data1 and self.text_data2 and self.text_data3 and self.text_data4 and self.text_data5:
             # 스레드 시작
             self.show_loading()
-            self.thread = WorkerThread(func=self.get_index_and_titles)
-            self.thread.finished.connect(self.show_items)
+            self.thread = WorkerThread(func=self.generate_draft)
+            self.thread.finished.connect(self.show_draft)
             self.thread.start()
         else:
             QMessageBox.warning(None, "Warning", "Please enter some text.")
-
-
-
-
-#     def load_raw_data(self):
-#         self.run_async(self.get_index_and_titles, callback=self.show_items)
     
-#     def get_index_and_titles(self):
-#         self.index_list = Show_indexList(self.raw_data, self.key)
-#         titles = get_GRI_Title(self.index_list)
-#         combined_list = [f"({self.index_list[i]['disclosure_num']}): [{title}] - {self.index_list[i]['description']}" for i, title in enumerate(titles)]
-#         return combined_list
-    
-#     def show_items(self, titles):
-#         self.listbox.delete(0, tk.END)
-#         for title in titles:
-#             self.listbox.insert(tk.END, title)
-#         self.generate_draft_btn.config(state='normal')
-    
-#     def generate_draft(self):
-#         selected_indices = [self.listbox.curselection()[i] for i in range(len(self.listbox.curselection()))]
-#         if len(selected_indices) != 3:
-#          messagebox.showerror("Error", "Please select exactly 3 items.")
-#          return
-#         self.run_async(self.create_draft, selected_indices, callback=self.show_draft_result)
+    def generate_draft(self):
+        self.draft1 = get_draft(self.text_data1, self.disclosure_num_list[0], self.raw_data, self.key)
+        self.draft2 = get_draft(self.text_data2, self.disclosure_num_list[1], self.raw_data, self.key)
+        self.draft3 = get_draft(self.text_data3, self.disclosure_num_list[2], self.raw_data, self.key)
+        self.draft4 = get_draft(self.text_data4, self.disclosure_num_list[3], self.raw_data, self.key)
+        self.draft5 = get_draft(self.text_data5, self.disclosure_num_list[4], self.raw_data, self.key)
 
-#     def show_draft_result(self, result):
-#     # 결과 창 생성
-#         result_window = Toplevel(self)
-#         result_window.title("Draft Generated")
-#         result_window.geometry("1600x1000")  # Adjust the window size as needed
 
-#         # Result sections for each draft
-#         for i, draft in enumerate(result):
-#             # Create a frame for each draft section
-#             draft_frame = tk.Frame(result_window)
-#             draft_frame.pack(fill='both', expand=True)
+    def show_draft(self):
+        self.hide_loading()
+        self.edit_window.close()
+        self.result_window = QWidget()
+        self.result_window.setWindowTitle("edit_text")
+        self.result_window.resize(1059, 664)
 
-#             # Add a label as a header for each section
-#             header_label = tk.Label(draft_frame, text=f"Draft {i + 1}", font=("Arial", 12, "bold"))
-#             header_label.pack(pady=(10, 0))
+        # 배경색 설정
+        self.result_window.setStyleSheet("background-color: rgb(255, 217, 102);")
 
-#             # Add a text widget for each draft content
-#             draft_text = tk.Text(draft_frame, height=20, width=100)
-#             draft_text.pack(padx=10, pady=5, expand=True, fill='both')
-#             draft_text.insert(tk.END, "\n".join(str(part) for part in draft))
-#             draft_text.config(state='disabled')  # Make the text widget read-only
+        # 라벨 생성
+        self.label_10 = QLabel("GS 건설", self.result_window)
+        self.label_10.setGeometry(20, 10, 91, 31)
+        font = QFont()
+        font.setPointSize(15)
+        font.setBold(True)
+        self.label_10.setFont(font)
 
-#             # If desired, add a separator between sections
-#             if i < len(result) - 1:
-#                 separator = tk.Frame(result_window, height=2, bd=1, relief="sunken")
-#                 separator.pack(fill='x', padx=5, pady=5)
+        self.label_11 = QLabel(self.result_window)
+        self.label_11.setObjectName(u"label_11")
+        self.label_11.setGeometry(QRect(100, 140, 841, 441))
+        self.label_11.setStyleSheet(u"background-color: rgb(255, 255, 255);")
 
-#         # Scrollbar (Optional, add if the text length exceeds the widget size)
-#         # You would need to wrap each Text widget or the whole window content in a Scrollable Frame or similar.
+        # 선 생성
+        self.line = QFrame(self.result_window)
+        self.line.setObjectName(u"line")
+        self.line.setGeometry(QRect(0, 56, 1059, 2))
+        self.line.setStyleSheet(u"background-color: rgb(0, 0, 0);")
+        self.line.setFrameShape(QFrame.Shape.HLine)
+        self.line.setFrameShadow(QFrame.Shadow.Sunken)
 
-#         # 창 닫기 버튼
-#         close_button = tk.Button(result_window, text="Close", command=lambda: [result_window.destroy(), self.reset_app()])
-#         close_button.pack(pady=10, side='bottom')
+        self.label_12 = QLabel("ESG 보고서 초안", self.edit_window)
+        self.label_12.setGeometry(QRect(100, 90, 641, 41))
+        self.label_12.setFont(font)
+        
+        self.tabWidget2 = QTabWidget(self.result_window)
+        self.tabWidget2.setObjectName(u"tabWidget")
+        self.tabWidget2.setGeometry(QRect(100, 140, 841, 471))
+        
+        self.tab_6 = QLabel(str(self.draft1), self.result_window)
+        self.tab_6.setObjectName(u"tab_6")
+        self.tab_6.setGeometry(QRect(100, 140, 841, 471))
+        self.tab_6.setStyleSheet("background-color: white;")
+        font1 = QFont()
+        font1.setPointSize(9)  # 폰트 크기 설정
+        self.tab_6.setFont(font1)
+        self.tabWidget2.addTab(self.tab_6, self.disclosure_num_list[0])
 
-#     def reset_app(self):
-#     # Reset the application to its initial state
-#         self.raw_data = None
-#         self.index_list = []
-#         self.listbox.delete(0, tk.END)
-#         self.load_data_btn.config(state='disabled')
-#         self.generate_draft_btn.config(state='disabled')
-#         # 결과 창 닫힘 처리를 기다린 후 raw data 입력 창을 열도록 스케줄링
-#         self.after(100, self.prompt_for_raw_data)
+        self.tab_7 = QLabel(str(self.draft2), self.result_window)
+        self.tab_7.setObjectName(u"tab_7")
+        self.tab_7.setGeometry(QRect(100, 140, 841, 471))
+        self.tab_7.setStyleSheet("background-color: white;")
+        self.tab_7.setFont(font1)
+        self.tabWidget2.addTab(self.tab_7, self.disclosure_num_list[1])
 
-#     def create_draft(self, selected_indices):
-#         return Create_Draft(self.raw_data, self.index_list, selected_indices, self.pdf_path, self.key)
-    
+        self.tab_8 = QLabel(str(self.draft3), self.result_window)
+        self.tab_8.setObjectName(u"tab_8")
+        self.tab_8.setGeometry(QRect(100, 140, 841, 471))
+        self.tab_8.setStyleSheet("background-color: white;")
+        self.tab_8.setFont(font1)
+        self.tabWidget2.addTab(self.tab_8, self.disclosure_num_list[2])
+
+        self.tab_9 = QLabel(str(self.draft4), self.result_window)
+        self.tab_9.setObjectName(u"tab_9")
+        self.tab_9.setGeometry(QRect(100, 140, 841, 471))
+        self.tab_9.setStyleSheet("background-color: white;")
+        self.tab_9.setFont(font1)
+        self.tabWidget2.addTab(self.tab_9, self.disclosure_num_list[3])
+
+        self.tab_10 = QLabel(str(self.draft5), self.result_window)
+        self.tab_10.setObjectName(u"tab_10")
+        self.tab_10.setGeometry(QRect(100, 140, 841, 471))
+        self.tab_10.setStyleSheet("background-color: white;")
+        self.tab_10.setFont(font1)
+        self.tabWidget2.addTab(self.tab_10, self.disclosure_num_list[4])
+
+        submit_button = QPushButton("다시하기", self.result_window)
+        submit_button.setGeometry(500, 630, 75, 23)
+        submit_button.setStyleSheet(u"background-color: rgb(0, 0, 0); color: rgb(255, 255, 255);")
+        # submit_button.clicked.connect(self.process_edit_text)
+
+        self.result_window.show()
+
 def Show_indexList(raw_data, key):
     index_list = get_index(raw_data, key)
     return index_list
