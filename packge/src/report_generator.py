@@ -258,6 +258,7 @@ class GRIApp(object):
         self.label_pic_2.setObjectName(u"label_pic")
         self.label_pic_2.setGeometry(QRect(10, 10, 111, 41))
         self.label_pic_2.setPixmap(self.pixmap)
+        self.label_pic_2.setScaledContents(True)
 
         # 선 생성
         self.line = QFrame(self.list_window)
@@ -446,6 +447,7 @@ class GRIApp(object):
         self.label_pic_2.setObjectName(u"label_pic")
         self.label_pic_2.setGeometry(QRect(10, 10, 111, 41))
         self.label_pic_2.setPixmap(self.pixmap)
+        self.label_pic_2.setScaledContents(True)
 
         # 선 생성
         self.line = QFrame(self.edit_window)
@@ -543,6 +545,7 @@ class GRIApp(object):
         self.label_pic_2.setObjectName(u"label_pic")
         self.label_pic_2.setGeometry(QRect(10, 10, 111, 41))
         self.label_pic_2.setPixmap(self.pixmap)
+        self.label_pic_2.setScaledContents(True)
 
         # 선 생성
         self.line = QFrame(self.result_window)
@@ -594,15 +597,14 @@ class GRIApp(object):
         self.result_window.show()
     
     def restart_application(self):
-        # 현재 애플리케이션을 다시 시작하는 코드
-        QApplication.exit()
-        QCoreApplication.instance().quit()
-        app = QApplication(sys.argv)
+        # 현재 창을 닫고
+        self.result_window.close()
+
+        # 새로운 MainWindow 인스턴스를 생성하고 UI를 설정합니다.
         MainWindow = QMainWindow()
         ui = GRIApp()
         ui.setupUi(MainWindow)
         MainWindow.show()
-        sys.exit(app.exec())
 
 def Show_indexList(raw_data, key):
     index_list = get_index(raw_data, key)
